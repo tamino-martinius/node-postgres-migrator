@@ -54,6 +54,7 @@
     "typescript": "^2.9.2"
   },
   "peerDependencies": {
+    "@nextcode/migrator": "^1.0.0-alpha.1",
     "pg": "^7.4.3"
   },
   "jest": {
