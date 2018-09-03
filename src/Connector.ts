@@ -64,7 +64,16 @@ export class Connector extends AbstractConnector {
   }
 
   public async insertMigration(key: string): Promise<void> {
-
+    const result = await this.pool.query({
+      name: 'migrator--insert-key',
+      text: `
+        INSERT INTO
+        "${this.tableName}"("key", "timestamp")
+        VALUES($1, current_timestamp)
+      `,
+      values: [key],
+    });
+    console.log(result);
   }
 
   public async deleteMigrations(key: string): Promise<void> {
