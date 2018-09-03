@@ -77,9 +77,16 @@ export class Connector extends AbstractConnector {
   }
 
   public async deleteMigrations(key: string): Promise<void> {
-
+    const result = await this.pool.query({
+      name: 'migrator--delete-key',
+      text: `
+        DELETE FROM "${this.tableName}"
+        WHERE key = $1
+      `,
+      values: [key],
+    });
+    console.log(result);
   }
-
 }
 
 export default Connector;
