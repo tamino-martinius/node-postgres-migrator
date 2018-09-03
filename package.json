@@ -1,13 +1,11 @@
 {
-  "name": "github-graphql-api",
-  "version": "1.0.6",
-  "description": "A node client for the GitHub GraphQL API with minimal dependencies created with TypeScript.",
+  "name": "@nextcode/migrations",
+  "version": "1.0.0-alpha.0",
+  "description": "Migration package with zero dependencies",
   "keywords": [
-    "github",
-    "github-api",
-    "graphql",
-    "api",
-    "api-client",
+    "migrate",
+    "migrations",
+    "cli",
     "typescript",
     "jest",
     "node",
@@ -24,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tamino-martinius/node-github-graphql-api.git"
+    "url": "https://github.com/tamino-martinius/node-migrations.git"
   },
   "engines": {
     "node": ">=6.14.0"
