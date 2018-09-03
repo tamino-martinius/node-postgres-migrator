@@ -87,6 +87,33 @@ export class Connector extends AbstractConnector {
     });
     console.log(result);
   }
+
+  public async beginTransaction(): Promise<void> {
+    const result = await this.pool.query({
+      name: 'migrator--begin-transaction',
+      text: 'BEGIN',
+      values: [],
+    });
+    console.log(result);
+  }
+
+  public async endTransaction(): Promise<void> {
+    const result = await this.pool.query({
+      name: 'migrator--end-transaction',
+      text: 'COMMIT',
+      values: [],
+    });
+    console.log(result);
+  }
+
+  public async rollbackTransaction(): Promise<void> {
+    const result = await this.pool.query({
+      name: 'migrator--rollback-transaction',
+      text: 'ROLLBACK',
+      values: [],
+    });
+    console.log(result);
+  }
 }
 
 export default Connector;
