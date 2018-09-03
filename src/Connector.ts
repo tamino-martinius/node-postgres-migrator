@@ -45,7 +45,12 @@ export class Connector extends AbstractConnector {
   }
 
   public async dropTable(): Promise<void> {
-
+    const result = await this.pool.query({
+      name: 'migrator--drop-table',
+      text: `DROP TABLE IF EXISTS "${this.tableName}"`,
+      values: [],
+    });
+    console.log(result);
   }
 
   public async getMigrationKeys(): Promise<string[]> {
