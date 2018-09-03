@@ -1,4 +1,5 @@
-export * from './github';
-import { GitHub } from './github';
-export default GitHub;
+export * from './Migrator';
+export * from './Connector';
+import { Migrator } from './Migrator';
+export default Migrator;
 //# sourceMappingURL=index.mjs.map

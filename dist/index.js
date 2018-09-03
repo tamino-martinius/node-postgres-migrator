@@ -3,7 +3,8 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./github"));
-const github_1 = require("./github");
-exports.default = github_1.GitHub;
+__export(require("./Migrator"));
+__export(require("./Connector"));
+const Migrator_1 = require("./Migrator");
+exports.default = Migrator_1.Migrator;
 //# sourceMappingURL=index.js.map

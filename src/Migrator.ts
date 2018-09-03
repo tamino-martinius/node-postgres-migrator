@@ -12,7 +12,7 @@ export class Migrator {
   async init(): Promise<void> {
     if (this.initStatus === true) return Promise.resolve();
     if (this.initStatus === false) {
-      return this.initStatus = new Promise(async (resolve, reject) => {
+      return this.initStatus = new Promise(async (resolve) => {
         const migrationTableExists = await this.connector.tableExists();
         if (!migrationTableExists) await this.connector.createTable();
         const migrationKeys = await this.connector.getMigrationKeys();
@@ -73,7 +73,7 @@ export class Migrator {
       if (!process) throw `Parent Migration «${key}» missing.`;
       return process;
     });
-    return this.migrationPromises[migration.key] = new Promise(async (resolve, reject) => {
+    return this.migrationPromises[migration.key] = new Promise(async (resolve) => {
       await this.init();
       await Promise.all(parentPromises);
       await migration.up();
