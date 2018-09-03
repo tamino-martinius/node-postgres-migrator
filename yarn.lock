@@ -33,9 +33,9 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@nextcode/migrator@^1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@nextcode/migrator/-/migrator-1.0.0-alpha.1.tgz#c519cbe8159d1dc4a6d572acb334ebea8566354a"
+"@nextcode/migrator@^1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@nextcode/migrator/-/migrator-1.0.0-alpha.2.tgz#87af280a627e60294d03b256e25b5363410e0f79"
 
 "@types/events@*":
   version "1.2.0"
