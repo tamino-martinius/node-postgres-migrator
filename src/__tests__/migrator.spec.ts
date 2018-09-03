@@ -5,5 +5,15 @@ import {
 } from '..';
 
 describe('Migrator', () => {
+  context('when no test is present', {
+    definitions() {
+      // overwrites
+    },
+    tests() {
+      it('still passes', () => {
+        expect(true).toBeTruthy();
+      });
+    },
+  });
 
 });
