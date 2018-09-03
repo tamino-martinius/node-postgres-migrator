@@ -63,7 +63,7 @@ export class Connector extends AbstractConnector {
     return result.rows.map(row => row.key);
   }
 
-  public async insertMigration(key: string): Promise<void> {
+  public async insertMigrationKey(key: string): Promise<void> {
     const result = await this.pool.query({
       name: 'migrator--insert-key',
       text: `
@@ -76,7 +76,7 @@ export class Connector extends AbstractConnector {
     console.log(result);
   }
 
-  public async deleteMigrations(key: string): Promise<void> {
+  public async deleteMigrationKey(key: string): Promise<void> {
     const result = await this.pool.query({
       name: 'migrator--delete-key',
       text: `
