@@ -1,5 +1,4 @@
-export * from './types';
-export * from './Migrator';
-export * from './Connector';
-import { Migrator } from './Migrator';
+export * from '@nextcode/migrator';
+export { Connector } from './Connector';
+import { Migrator } from '@nextcode/migrator';
 export default Migrator;
