@@ -15,14 +15,16 @@ export class Connector extends AbstractConnector {
   }
 
   public async tableExists(): Promise<boolean> {
-    const result = await this.pool.query(
-      `
+    const result = await this.pool.query({
+      name: 'migrator--table-exists',
+      text: `
         SELECT * FROM "information_schema"."tables"
         WHERE "table_schema" = current_schema()
-          AND "table_name" = $1'
+          AND "table_name" = $1
       `,
-      [this.tableName],
-    );
+      values: [this.tableName],
+    });
+    console.log(result);
     return result.rowCount > 0;
   }
 
