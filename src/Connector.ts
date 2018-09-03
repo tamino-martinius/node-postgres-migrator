@@ -29,17 +29,19 @@ export class Connector extends AbstractConnector {
   }
 
   public async createTable(): Promise<void> {
-    const result = await this.pool.query(
-      `
-        CREATE TABLE $1 (
-          ""
+    const result = await this.pool.query({
+      name: 'migrator--create-table',
+      text: `
+        CREATE TABLE "${this.tableName}" (
+          "id" SERIAL NOT NULL,
+          "key" character varying NOT NULL,
+          "timestamp" timestamp NOT NULL,
+          PRIMARY KEY ("id")
         )
-        WHERE "table_schema" = current_schema()
-          AND "table_name" = $1'
       `,
-      [this.tableName],
-    );
-    return result.rowCount > 0;
+      values: [],
+    });
+    console.log(result);
   }
 
   public async dropTable(): Promise<void> {
