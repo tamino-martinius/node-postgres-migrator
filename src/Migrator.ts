@@ -26,6 +26,45 @@ export class Migrator {
     }
     return this.initStatus;
   }
+
+  public async migrate(migrations: Migration[]): Promise<void> {
+    const promises: Promise<void>[] = [];
+    let migrationCount = migrations.length;
+    const migrationKeyLookup: Dict<boolean> = {};
+    migrations.map(migration => migrationKeyLookup[migration.key] = true);
+    while (migrationCount > 0) {
+      let index = 0;
+      while (index < migrations.length) {
+        const migration = migrations[index];
+        let processMigration = true;
+        if (migration.parent !== undefined) {
+          for (const key of migration.parent) {
+            if (!this.migrationPromises[key]) {
+              if (!migrationKeyLookup[key]) {
+                throw `Parent «${key}» not found for migration «${migrations[0].key}».`;
+              }
+              processMigration = false;
+              break;
+            }
+          }
+        }
+        if (processMigration) {
+          promises.push(this.up(migration));
+          migrations.splice(index, 1);
+        } else {
+          index += 1;
+        }
+      }
+      if (migrationCount === migrations.length) {
+        throw `
+          Migrations build a infinite loop.
+          Unable to add keys «${migrations.map(migration => migration.key).join('», «')}».
+        `;
+      }
+      migrationCount = migrations.length;
+    }
+    await Promise.all(promises);
+  }
 }
 
 export default Migrator;
