@@ -54,7 +54,13 @@ export class Connector extends AbstractConnector {
   }
 
   public async getMigrationKeys(): Promise<string[]> {
-
+    const result = await this.pool.query({
+      name: 'migrator--get-keys',
+      text: `SELECT key FROM "${this.tableName}"`,
+      values: [],
+    });
+    console.log(result);
+    return result.rows.map(row => row.key);
   }
 
   public async insertMigration(key: string): Promise<void> {
