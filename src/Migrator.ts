@@ -65,6 +65,29 @@ export class Migrator {
     }
     await Promise.all(promises);
   }
+
+  public async up(migration: Migration): Promise<void> {
+    const parent = migration.parent || (this.lastMigration ? [this.lastMigration] : []);
+    const parentPromises = parent.map((key) => {
+      const process = this.migrationPromises[key];
+      if (!process) throw `Parent Migration «${key}» missing.`;
+      return process;
+    });
+    return this.migrationPromises[migration.key] = new Promise(async (resolve, reject) => {
+      await this.init();
+      await Promise.all(parentPromises);
+      await migration.up();
+      this.migrationStatus[migration.key] = true;
+      resolve();
+    });
+  }
+
+  public async down(migration: Migration): Promise<void> {
+    await this.init();
+    await migration.up();
+    delete this.migrationPromises[migration.key];
+    delete this.migrationStatus[migration.key];
+  }
 }
 
 export default Migrator;
