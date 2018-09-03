@@ -4,7 +4,7 @@ import { Pool } from 'pg';
 export class Connector extends AbstractConnector {
   private pool: Pool;
 
-  constructor(public tableName: string) {
+  constructor(public tableName: string = 'migrations') {
     super(tableName);
     this.pool = new Pool();
   }
@@ -22,7 +22,17 @@ export class Connector extends AbstractConnector {
   }
 
   public async createTable(): Promise<void> {
-
+    const result = await this.pool.query(
+      `
+        CREATE TABLE $1 (
+          ""
+        )
+        WHERE "table_schema" = current_schema()
+          AND "table_name" = $1'
+      `,
+      [this.tableName],
+    );
+    return result.rowCount > 0;
   }
 
   public async dropTable(): Promise<void> {
