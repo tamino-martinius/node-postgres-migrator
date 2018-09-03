@@ -7,6 +7,11 @@ export class Connector extends AbstractConnector {
   constructor(public tableName: string = 'migrations') {
     super(tableName);
     this.pool = new Pool();
+    if (!this.isTableNameValid) throw `Invalid table name «${this.tableName}»`;
+  }
+
+  private get isTableNameValid() {
+    return /[a-z]([a-z0-9_])*/.test(this.tableName);
   }
 
   public async tableExists(): Promise<boolean> {
