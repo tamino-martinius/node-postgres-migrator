@@ -28,7 +28,7 @@ export class Connector extends AbstractConnector {
   }
 
   private async createIndex(): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--create-idnex',
       text: `CREATE UNIQUE INDEX "${this.tableName}__key" ON "${this.tableName}" ("key");`,
       values: [],
@@ -36,7 +36,7 @@ export class Connector extends AbstractConnector {
   }
 
   public async createTable(): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--create-table',
       text: `
         CREATE TABLE "${this.tableName}" (
@@ -52,7 +52,7 @@ export class Connector extends AbstractConnector {
   }
 
   private async dropIndex(): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--drop-index',
       text: `DROP INDEX IF EXISTS "${this.tableName}__key"`,
       values: [],
@@ -62,7 +62,7 @@ export class Connector extends AbstractConnector {
 
   public async dropTable(): Promise<void> {
     await this.dropIndex();
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--drop-table',
       text: `DROP TABLE IF EXISTS "${this.tableName}"`,
       values: [],
@@ -79,7 +79,7 @@ export class Connector extends AbstractConnector {
   }
 
   public async insertMigrationKey(key: string): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--insert-key',
       text: `
         INSERT INTO
@@ -91,7 +91,7 @@ export class Connector extends AbstractConnector {
   }
 
   public async deleteMigrationKey(key: string): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--delete-key',
       text: `
         DELETE FROM "${this.tableName}"
@@ -102,7 +102,7 @@ export class Connector extends AbstractConnector {
   }
 
   public async beginTransaction(): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--begin-transaction',
       text: 'BEGIN',
       values: [],
@@ -110,7 +110,7 @@ export class Connector extends AbstractConnector {
   }
 
   public async endTransaction(): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--end-transaction',
       text: 'COMMIT',
       values: [],
@@ -118,7 +118,7 @@ export class Connector extends AbstractConnector {
   }
 
   public async rollbackTransaction(): Promise<void> {
-    const result = await this.pool.query({
+    await this.pool.query({
       name: 'migrator--rollback-transaction',
       text: 'ROLLBACK',
       values: [],
@@ -127,7 +127,7 @@ export class Connector extends AbstractConnector {
 
   public async disconnect(): Promise<void> {
     if (this.pool.totalCount > 0) {
-      const result = await this.pool.end();
+      await this.pool.end();
     }
   }
 }
