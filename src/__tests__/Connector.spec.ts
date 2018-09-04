@@ -49,6 +49,37 @@ afterAll(async () => {
   }
   await pool.end();
 });
+
+describe('Connector', () => {
+  let tableName: string | undefined;
+  let connector: Connector | undefined;
+
+  const subject = () => {
+    if (connector !== undefined) connector.disconnect();
+    return connector = new Connector(tableName);
+  };
+
+  afterEach(async () => {
+    if (connector !== undefined) {
+      await connector.dropTable();
+      await connector.disconnect();
+    }
   });
 
+  describe('#new', () => {
+    context('when tableName is not present', {
+      definitions() {
+        tableName = undefined;
+      },
+      tests() {
+        it('will set a default', () => {
+          const connector = subject();
+          expect(connector.tableName).toBeDefined();
+          expect(typeof connector.tableName).toBe('string');
+        });
+      },
+    });
+  });
+
+  });
 });
