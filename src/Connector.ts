@@ -132,6 +132,11 @@ export class Connector extends AbstractConnector {
       values: [],
     });
     console.log(result);
+
+  public async disconnect(): Promise<void> {
+    if (this.pool.totalCount > 0) {
+      const result = await this.pool.end();
+    }
   }
 }
 
