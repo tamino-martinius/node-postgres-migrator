@@ -136,5 +136,28 @@ describe('Connector', () => {
     });
   });
 
+  describe('#dropTable', () => {
+    it('does nothing when no table present', async () => {
+      const connector = subject();
+      expect(await connector.tableExists()).toBe(false);
+      await connector.dropTable();
+      expect(await connector.tableExists()).toBe(false);
+    });
+
+    context('when table is created before', {
+      async definitions() {
+        await subject().createTable();
+      },
+      tests() {
+        it('drops table', async () => {
+          const connector = subject();
+          expect(await connector.tableExists()).toBe(true);
+          await connector.dropTable();
+          expect(await connector.tableExists()).toBe(false);
+        });
+      },
+    });
+  });
+
   });
 });
