@@ -159,5 +159,40 @@ describe('Connector', () => {
     });
   });
 
+  describe('#getMigrationKeys', () => {
+    it('will raise error when no table is present', async () => {
+      const connector = subject();
+      expect(await connector.tableExists()).toBe(false);
+      try {
+        await connector.getMigrationKeys();
+      } catch (error) {
+        return expect(error).toBeDefined();
+      }
+      expect(false).toBeTruthy(); // not expected to reach
+    });
+
+    context('when table is created before', {
+      async definitions() {
+        await subject().createTable();
+      },
+      tests() {
+        it('returns empty array', async () => {
+          expect(await subject().getMigrationKeys()).toEqual([]);
+        });
+
+        context('when table has items', {
+          async definitions() {
+            await subject().insertMigrationKey('test');
+          },
+          tests() {
+            it('returns existing item', async () => {
+              expect(await subject().getMigrationKeys()).toEqual(['test']);
+            });
+          },
+        });
+      },
+    });
+  });
+
   });
 });
