@@ -28,6 +28,14 @@ export class Connector extends AbstractConnector {
     return result.rowCount > 0;
   }
 
+  private async createIndex(): Promise<void> {
+    const result = await this.pool.query({
+      name: 'migrator--create-idnex',
+      text: `CREATE UNIQUE INDEX "${this.tableName}__key" ON "${this.tableName}" ("key");`,
+      values: [],
+    });
+  }
+
   public async createTable(): Promise<void> {
     const result = await this.pool.query({
       name: 'migrator--create-table',
@@ -38,13 +46,24 @@ export class Connector extends AbstractConnector {
           "timestamp" timestamp NOT NULL,
           PRIMARY KEY ("id")
         )
-      `,
+       `,
+      values: [],
+    });
+    await this.createIndex();
+  }
+
+  private async dropIndex(): Promise<void> {
+    const result = await this.pool.query({
+      name: 'migrator--drop-index',
+      text: `DROP INDEX IF EXISTS "${this.tableName}__key"`,
       values: [],
     });
     console.log(result);
+
   }
 
   public async dropTable(): Promise<void> {
+    await this.dropIndex();
     const result = await this.pool.query({
       name: 'migrator--drop-table',
       text: `DROP TABLE IF EXISTS "${this.tableName}"`,
