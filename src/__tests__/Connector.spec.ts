@@ -221,6 +221,31 @@ describe('Connector', () => {
           expect(await connector.getMigrationKeys()).toEqual(['test']);
         });
 
+        describe('when wrapped with transaction', () => {
+          it('will create new', async () => {
+            const connector = subject();
+
+            expect(await connector.getMigrationKeys()).toEqual([]);
+            await connector.beginTransaction();
+            await connector.insertMigrationKey('test');
+            await connector.endTransaction();
+            expect(await connector.getMigrationKeys()).toEqual(['test']);
+          });
+
+
+          describe('when transaction ends with rollback', () => {
+            it('will not create new', async () => {
+              const connector = subject();
+
+              expect(await connector.getMigrationKeys()).toEqual([]);
+              await connector.beginTransaction();
+              await connector.insertMigrationKey('test');
+              await connector.rollbackTransaction();
+              expect(await connector.getMigrationKeys()).toEqual([]);
+            });
+          });
+        });
+
         context('when table already has this key', {
           async definitions() {
             await subject().insertMigrationKey('test');
