@@ -24,7 +24,6 @@ export class Connector extends AbstractConnector {
       `,
       values: [this.tableName],
     });
-    console.log(result);
     return result.rowCount > 0;
   }
 
@@ -58,7 +57,6 @@ export class Connector extends AbstractConnector {
       text: `DROP INDEX IF EXISTS "${this.tableName}__key"`,
       values: [],
     });
-    console.log(result);
 
   }
 
@@ -69,7 +67,6 @@ export class Connector extends AbstractConnector {
       text: `DROP TABLE IF EXISTS "${this.tableName}"`,
       values: [],
     });
-    console.log(result);
   }
 
   public async getMigrationKeys(): Promise<string[]> {
@@ -78,7 +75,6 @@ export class Connector extends AbstractConnector {
       text: `SELECT key FROM "${this.tableName}"`,
       values: [],
     });
-    console.log(result);
     return result.rows.map(row => row.key);
   }
 
@@ -92,7 +88,6 @@ export class Connector extends AbstractConnector {
       `,
       values: [key],
     });
-    console.log(result);
   }
 
   public async deleteMigrationKey(key: string): Promise<void> {
@@ -104,7 +99,6 @@ export class Connector extends AbstractConnector {
       `,
       values: [key],
     });
-    console.log(result);
   }
 
   public async beginTransaction(): Promise<void> {
@@ -113,7 +107,6 @@ export class Connector extends AbstractConnector {
       text: 'BEGIN',
       values: [],
     });
-    console.log(result);
   }
 
   public async endTransaction(): Promise<void> {
@@ -122,7 +115,6 @@ export class Connector extends AbstractConnector {
       text: 'COMMIT',
       values: [],
     });
-    console.log(result);
   }
 
   public async rollbackTransaction(): Promise<void> {
@@ -131,7 +123,7 @@ export class Connector extends AbstractConnector {
       text: 'ROLLBACK',
       values: [],
     });
-    console.log(result);
+  }
 
   public async disconnect(): Promise<void> {
     if (this.pool.totalCount > 0) {
