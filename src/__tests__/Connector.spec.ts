@@ -108,6 +108,32 @@ describe('Connector', () => {
       },
     });
   });
+
+  describe('#createTable', () => {
+    it('creates table', async () => {
+      const connector = subject();
+      expect(await connector.tableExists()).toBe(false);
+      await connector.createTable();
+      expect(await connector.tableExists()).toBe(true);
+    });
+
+    context('when table is created before', {
+      async definitions() {
+        await subject().createTable();
+      },
+      tests() {
+        it('will raise an error', async () => {
+          const connector = subject();
+          expect(await connector.tableExists()).toBe(true);
+          try {
+            await connector.createTable();
+          } catch (error) {
+            return expect(error).toBeDefined();
+          }
+          expect(false).toBeTruthy(); // not expected to reach
+        });
+      },
+    });
   });
 
   });
