@@ -238,4 +238,59 @@ describe('Connector', () => {
       },
     });
   });
+
+  describe('#deleteMigrationKey', () => {
+    it('will raise an error when no table is present', async () => {
+      const connector = subject();
+      expect(await connector.tableExists()).toBe(false);
+      try {
+        await connector.deleteMigrationKey('test');
+      } catch (error) {
+        return expect(error).toBeDefined();
+      }
+      expect(false).toBeTruthy(); // not expected to reach
+    });
+
+    context('when table is created before', {
+      async definitions() {
+        await subject().createTable();
+      },
+      tests() {
+        it('will not change anything', async () => {
+          const connector = subject();
+          expect(await connector.getMigrationKeys()).toEqual([]);
+          await connector.deleteMigrationKey('test');
+          expect(await connector.getMigrationKeys()).toEqual([]);
+        });
+
+        context('when table already has this key', {
+          async definitions() {
+            await subject().insertMigrationKey('test');
+          },
+          tests() {
+            it('delete the existing key', async () => {
+              const connector = subject();
+              expect(await connector.getMigrationKeys()).toEqual(['test']);
+              await connector.deleteMigrationKey('test');
+              expect(await connector.getMigrationKeys()).toEqual([]);
+            });
+          },
+        });
+
+        context('when table already has another key', {
+          async definitions() {
+            await subject().insertMigrationKey('foo');
+          },
+          tests() {
+            it('will keep existing key', async () => {
+              const connector = subject();
+              expect(await connector.getMigrationKeys()).toEqual(['foo']);
+              await connector.deleteMigrationKey('test');
+              expect(await connector.getMigrationKeys()).toEqual(['foo']);
+            });
+          },
+        });
+      },
+    });
+  });
 });
