@@ -1,11 +1,9 @@
-import { Connector as AbstractConnector } from '@nextcode/migrator';
 import { Pool } from 'pg';
 
-export class Connector extends AbstractConnector {
+export class Connector {
   private pool: Pool;
 
   constructor(public tableName: string = 'migrations') {
-    super(tableName);
     this.pool = new Pool();
     if (!this.isTableNameValid) throw `Invalid table name «${this.tableName}»`;
   }
