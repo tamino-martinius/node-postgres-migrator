@@ -8,26 +8,29 @@ import { Connector } from '../Connector';
 
 if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
-beforeAll(async () => {
-  const pool = new Pool({ database: 'postgres' });
-  const result = await pool.query({
-    name: 'migrator--test--database-exists',
-    text: `
-      SELECT 1
-      FROM pg_database
-      WHERE datname = '${process.env.PGDATABASE}'
-    `,
-    values: [],
-  });
-  if (result.rows.length === 0) {
-    await pool.query({
-      name: 'migrator--test--create-database',
-      text: `CREATE DATABASE "${process.env.PGDATABASE}"`,
+beforeAll(
+  async () => {
+    const pool = new Pool({ database: 'postgres' });
+    const result = await pool.query({
+      name: 'migrator--test--database-exists',
+      text: `
+        SELECT 1
+        FROM pg_database
+        WHERE datname = '${process.env.PGDATABASE}'
+      `,
       values: [],
     });
-  }
-  await pool.end();
-});
+    if (result.rows.length === 0) {
+      await pool.query({
+        name: 'migrator--test--create-database',
+        text: `CREATE DATABASE "${process.env.PGDATABASE}"`,
+        values: [],
+      });
+    }
+    await pool.end();
+  },
+  30_000,
+);
 
 afterAll(async () => {
   const pool = new Pool({ database: 'postgres' });
