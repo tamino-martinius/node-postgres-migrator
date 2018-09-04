@@ -1,5 +1,5 @@
-export * from '@nextcode/migrator';
-export { Connector } from './Connector';
-import { Migrator } from '@nextcode/migrator';
+export * from './Migrator';
+export * from './Connector';
+import { Migrator } from './Migrator';
 export default Migrator;
 //# sourceMappingURL=index.mjs.map

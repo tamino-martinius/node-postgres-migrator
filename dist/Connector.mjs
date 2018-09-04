@@ -1,8 +1,6 @@
-import { Connector as AbstractConnector } from '@nextcode/migrator';
 import { Pool } from 'pg';
-export class Connector extends AbstractConnector {
+export class Connector {
     constructor(tableName = 'migrations') {
-        super(tableName);
         this.tableName = tableName;
         this.pool = new Pool();
         if (!this.isTableNameValid)
@@ -21,11 +19,17 @@ export class Connector extends AbstractConnector {
       `,
             values: [this.tableName],
         });
-        console.log(result);
         return result.rowCount > 0;
     }
+    async createIndex() {
+        await this.pool.query({
+            name: 'migrator--create-idnex',
+            text: `CREATE UNIQUE INDEX "${this.tableName}__key" ON "${this.tableName}" ("key");`,
+            values: [],
+        });
+    }
     async createTable() {
-        const result = await this.pool.query({
+        await this.pool.query({
             name: 'migrator--create-table',
             text: `
         CREATE TABLE "${this.tableName}" (
@@ -34,18 +38,25 @@ export class Connector extends AbstractConnector {
           "timestamp" timestamp NOT NULL,
           PRIMARY KEY ("id")
         )
-      `,
+       `,
             values: [],
         });
-        console.log(result);
+        await this.createIndex();
+    }
+    async dropIndex() {
+        await this.pool.query({
+            name: 'migrator--drop-index',
+            text: `DROP INDEX IF EXISTS "${this.tableName}__key"`,
+            values: [],
+        });
     }
     async dropTable() {
-        const result = await this.pool.query({
+        await this.dropIndex();
+        await this.pool.query({
             name: 'migrator--drop-table',
             text: `DROP TABLE IF EXISTS "${this.tableName}"`,
             values: [],
         });
-        console.log(result);
     }
     async getMigrationKeys() {
         const result = await this.pool.query({
@@ -53,11 +64,10 @@ export class Connector extends AbstractConnector {
             text: `SELECT key FROM "${this.tableName}"`,
             values: [],
         });
-        console.log(result);
         return result.rows.map(row => row.key);
     }
-    async insertMigration(key) {
-        const result = await this.pool.query({
+    async insertMigrationKey(key) {
+        await this.pool.query({
             name: 'migrator--insert-key',
             text: `
         INSERT INTO
@@ -66,10 +76,9 @@ export class Connector extends AbstractConnector {
       `,
             values: [key],
         });
-        console.log(result);
     }
-    async deleteMigrations(key) {
-        const result = await this.pool.query({
+    async deleteMigrationKey(key) {
+        await this.pool.query({
             name: 'migrator--delete-key',
             text: `
         DELETE FROM "${this.tableName}"
@@ -77,7 +86,32 @@ export class Connector extends AbstractConnector {
       `,
             values: [key],
         });
-        console.log(result);
+    }
+    async beginTransaction() {
+        await this.pool.query({
+            name: 'migrator--begin-transaction',
+            text: 'BEGIN',
+            values: [],
+        });
+    }
+    async endTransaction() {
+        await this.pool.query({
+            name: 'migrator--end-transaction',
+            text: 'COMMIT',
+            values: [],
+        });
+    }
+    async rollbackTransaction() {
+        await this.pool.query({
+            name: 'migrator--rollback-transaction',
+            text: 'ROLLBACK',
+            values: [],
+        });
+    }
+    async disconnect() {
+        if (this.pool.totalCount > 0) {
+            await this.pool.end();
+        }
     }
 }
 export default Connector;

@@ -8,11 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const migrator_1 = require("@nextcode/migrator");
 const pg_1 = require("pg");
-class Connector extends migrator_1.Connector {
+class Connector {
     constructor(tableName = 'migrations') {
-        super(tableName);
         this.tableName = tableName;
         this.pool = new pg_1.Pool();
         if (!this.isTableNameValid)
@@ -32,13 +30,21 @@ class Connector extends migrator_1.Connector {
       `,
                 values: [this.tableName],
             });
-            console.log(result);
             return result.rowCount > 0;
+        });
+    }
+    createIndex() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.pool.query({
+                name: 'migrator--create-idnex',
+                text: `CREATE UNIQUE INDEX "${this.tableName}__key" ON "${this.tableName}" ("key");`,
+                values: [],
+            });
         });
     }
     createTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.pool.query({
+            yield this.pool.query({
                 name: 'migrator--create-table',
                 text: `
         CREATE TABLE "${this.tableName}" (
@@ -47,20 +53,29 @@ class Connector extends migrator_1.Connector {
           "timestamp" timestamp NOT NULL,
           PRIMARY KEY ("id")
         )
-      `,
+       `,
                 values: [],
             });
-            console.log(result);
+            yield this.createIndex();
+        });
+    }
+    dropIndex() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.pool.query({
+                name: 'migrator--drop-index',
+                text: `DROP INDEX IF EXISTS "${this.tableName}__key"`,
+                values: [],
+            });
         });
     }
     dropTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.pool.query({
+            yield this.dropIndex();
+            yield this.pool.query({
                 name: 'migrator--drop-table',
                 text: `DROP TABLE IF EXISTS "${this.tableName}"`,
                 values: [],
             });
-            console.log(result);
         });
     }
     getMigrationKeys() {
@@ -70,13 +85,12 @@ class Connector extends migrator_1.Connector {
                 text: `SELECT key FROM "${this.tableName}"`,
                 values: [],
             });
-            console.log(result);
             return result.rows.map(row => row.key);
         });
     }
-    insertMigration(key) {
+    insertMigrationKey(key) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.pool.query({
+            yield this.pool.query({
                 name: 'migrator--insert-key',
                 text: `
         INSERT INTO
@@ -85,12 +99,11 @@ class Connector extends migrator_1.Connector {
       `,
                 values: [key],
             });
-            console.log(result);
         });
     }
-    deleteMigrations(key) {
+    deleteMigrationKey(key) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.pool.query({
+            yield this.pool.query({
                 name: 'migrator--delete-key',
                 text: `
         DELETE FROM "${this.tableName}"
@@ -98,7 +111,40 @@ class Connector extends migrator_1.Connector {
       `,
                 values: [key],
             });
-            console.log(result);
+        });
+    }
+    beginTransaction() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.pool.query({
+                name: 'migrator--begin-transaction',
+                text: 'BEGIN',
+                values: [],
+            });
+        });
+    }
+    endTransaction() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.pool.query({
+                name: 'migrator--end-transaction',
+                text: 'COMMIT',
+                values: [],
+            });
+        });
+    }
+    rollbackTransaction() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.pool.query({
+                name: 'migrator--rollback-transaction',
+                text: 'ROLLBACK',
+                values: [],
+            });
+        });
+    }
+    disconnect() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.pool.totalCount > 0) {
+                yield this.pool.end();
+            }
         });
     }
 }
