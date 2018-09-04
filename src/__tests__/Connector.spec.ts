@@ -79,6 +79,35 @@ describe('Connector', () => {
         });
       },
     });
+
+    context('when tableName is passed', {
+      definitions() {
+        tableName = 'test';
+      },
+      tests() {
+        it('will use passed value', () => {
+          expect(subject().tableName).toBe(tableName);
+        });
+      },
+    });
+  });
+
+  describe('#tableExists', () => {
+    it('returns false', async () => {
+      expect(await subject().tableExists()).toBe(false);
+    });
+
+    context('when table is created before', {
+      async definitions() {
+        await subject().createTable();
+      },
+      tests() {
+        it('returns true', async () => {
+          expect(await subject().tableExists()).toBe(true);
+        });
+      },
+    });
+  });
   });
 
   });
