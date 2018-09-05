@@ -4,7 +4,7 @@ import {
   existsSync,
   mkdirSync,
 } from 'fs';
-// import { Migration } from '../dist';         
+import { Migration } from './types';
 
 export class CLI {
   folder: string;
@@ -98,6 +98,51 @@ export class CLI {
     const path = folderParam ? resolve(folderParam) : resolve('migrations');
     this.createFolder(path);
     return path;
+  }
+
+  get migrationKeys() {
+    const path = this.migrationsPath;
+    const files = readdirSync(path);
+    console.log(this.migrationsPath);
+    const jsFiles = files.filter(file => file.endsWith('.js'));
+    return jsFiles.map(file => basename(file, '.js'));
+  }
+
+  getMigrations(keys: string[]): Migration[] {
+    const path = this.migrationsPath;
+    return keys.map(key => ({ key, ...require(`${path}/${key}`) }));
+  }
+
+  private getParam(shortKey: string, longKey: string) {
+    const shortParam = `-${shortKey}`;
+    const longParam = `--${longKey}=`;
+    const argv = process.argv;
+    let result: string | undefined = undefined;
+    for (let index = 0; index < argv.length; index += 1) {
+      const param = argv[index];
+      if (param === shortParam) {
+        const nextParam = argv[index + 1];
+        if (nextParam) {
+          if (!nextParam.startsWith('-')) {
+            result = nextParam;
+          } else {
+            throw `invalid parameter value for «${shortParam}»: «${nextParam}»`;
+          }
+        } else {
+          throw `value missing for parameter «${shortParam}»`;
+        }
+      }
+      if (param.startsWith(longParam)) {
+        result = param.substr(longParam.length);
+      }
+    }
+    return result;
+  }
+
+  migrate() {
+    const keys = this.migrationKeys;
+    const migrations = this.getMigrations(keys);
+    console.log({ keys, migrations });
   }
 }
 
