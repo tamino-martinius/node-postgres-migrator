@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+const CLI = require('../dist').CLI;
+const cli = new CLI();
+const command = process.argv[2];
+
+try {
+  // try command
+  cli[command]();
+} catch (error) {
+  try {
+    // try command help
+    cli[command + 'Help']();
+    console.log('error:', error);
+  } catch (error) {
+    // try help
+    cli.help();
+    console.log('error: invalid command «' + command + '»');
+    console.log('error:', error);
+  }
+}
