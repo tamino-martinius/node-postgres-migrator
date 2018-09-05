@@ -86,6 +86,19 @@ export class CLI {
     console.log('                     (default: migrations)');
     this.envHelp();
   }
+
+  createFolder(path: string) {
+    const parent = resolve(path, '..');
+    if (!existsSync(parent)) this.createFolder(parent);
+    if (!existsSync(path)) mkdirSync(path);
+  }
+
+  get migrationsPath() {
+    const folderParam = this.getParam('f', 'folder');
+    const path = folderParam ? resolve(folderParam) : resolve('migrations');
+    this.createFolder(path);
+    return path;
+  }
 }
 
 export default CLI;
