@@ -78,7 +78,7 @@ export class Migrator {
       await Promise.all(parentPromises);
       try {
         await this.connector.beginTransaction();
-        await migration.up();
+        await this.connector.up(migration);
         await this.connector.insertMigrationKey(migration.key);
         await this.connector.endTransaction();
         this.migrationStatus[migration.key] = true;
@@ -94,7 +94,7 @@ export class Migrator {
     await this.init();
     try {
       await this.connector.beginTransaction();
-      await migration.down();
+      await this.connector.down(migration);
       await this.connector.deleteMigrationKey(migration.key);
       await this.connector.endTransaction();
       delete this.migrationPromises[migration.key];
