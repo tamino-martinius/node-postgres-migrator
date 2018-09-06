@@ -112,9 +112,39 @@ export class CLI {
     return jsFiles.map(file => basename(file, '.js'));
   }
 
-  getMigrations(keys: string[]): Migration[] {
+  private readMigration(key: string) {
     const path = this.migrationsPath;
-    return keys.map(key => ({ key, ...require(`${path}/${key}`) }));
+    return { key, ...require(`${path}/${key}`) };
+  }
+
+  private get migrations(): Migration[] {
+    return this.migrationKeys.map(key => this.readMigration(key));
+  }
+
+  private get migration(): Migration {
+    const path = this.migrationsPath;
+    const keys = this.migrationKeys;
+    const keyParam = this.getParam('k', 'key');
+    const versionParam = this.getParam('v', 'version');
+    if (keyParam && keyParam.length > 0) {
+      if (keys.indexOf(keyParam) < 0) {
+        throw `Unable to find key «${keyParam}» in folder «${path}»`;
+      }
+      return this.readMigration(keyParam);
+    }
+    if (versionParam && versionParam.length > 0) {
+      for (const key of keys) {
+        if (key.startsWith(`${version}_`) || key.startsWith(`${version}-`)) {
+          return this.readMigration(key);
+        }
+      }
+      throw `Unable to find version «${versionParam}» in folder «${path}»`;
+    }
+    throw `Unable to find migration - please provide either version or key`;
+  }
+
+  private getMigrator(tableName?: string) {
+    return new Migrator(new Connector(tableName));
   }
 
   private getParam(shortKey: string, longKey: string) {
