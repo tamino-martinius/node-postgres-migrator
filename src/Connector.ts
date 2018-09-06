@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { Migration } from './types';
 
 export class Connector {
   private pool: Pool;
@@ -163,6 +164,14 @@ export class Connector {
       text: 'ROLLBACK',
       values: [],
     });
+  }
+
+  public async up(migration: Migration): Promise<void> {
+    await migration.up(this.pool);
+  }
+
+  public async down(migration: Migration): Promise<void> {
+    await migration.down(this.pool);
   }
 
   public async disconnect(): Promise<void> {
