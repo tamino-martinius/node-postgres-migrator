@@ -143,10 +143,24 @@ export class CLI {
     return result;
   }
 
-  migrate() {
-    const keys = this.migrationKeys;
-    const migrations = this.getMigrations(keys);
-    console.log({ keys, migrations });
+  async up() {
+    const migrator = this.getMigrator();
+    await migrator.up(this.migration);
+  }
+
+  async down() {
+    const migrator = this.getMigrator();
+    await migrator.up(this.migration);
+  }
+
+  async migrate() {
+    const migrator = this.getMigrator();
+    await migrator.migrate(this.migrations);
+  }
+
+  get newVersion() {
+    return new Date().toISOString().substr(0, 19).replace(/[-T:]/g, '');
+  }
 
   create() {
     const name = process.argv[3];
