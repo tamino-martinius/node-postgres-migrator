@@ -3,10 +3,11 @@
 const CLI = require('../dist').CLI;
 const cli = new CLI();
 const command = process.argv[2];
+const commandOrHelp = process.argv[3] === 'help' ? command + 'Help' : command;
 
 try {
   // try command
-  cli[command]();
+  cli[commandOrHelp]();
 } catch (error) {
   try {
     // try command help
