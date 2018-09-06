@@ -3,8 +3,12 @@ import {
   readdirSync,
   existsSync,
   mkdirSync,
+  writeFileSync,
 } from 'fs';
 import { Migration } from './types';
+import { Migrator } from './Migrator';
+import { Connector } from './Connector';
+import { version } from 'punycode';
 
 export class CLI {
   folder: string;
@@ -143,6 +147,45 @@ export class CLI {
     const keys = this.migrationKeys;
     const migrations = this.getMigrations(keys);
     console.log({ keys, migrations });
+
+  create() {
+    const name = process.argv[3];
+    if (!name || name.length === 0 || name.startsWith('-')) {
+      throw `Value missing for parameter «name»`;
+    }
+
+    // Template for node 8+
+    const template = `const pg = require('pg');
+
+/**
+ * Description of the Migration
+ */
+module.exports = {
+  parent: undefined,
+  /**
+   * Method to apply migration
+   * @param {pg.Pool} client
+   * @returns {Promise<void>}
+   */
+  async up(client) {
+
+    // remove async keyword when you are using a node version before 8
+
+  },
+  /**
+   * Method to rollback migration
+   * @param {pg.Pool} client
+   * @returns {Promise<void>}
+   */
+  async down(client) {
+
+    // remove async keyword when you are using a node version before 8
+
+  },
+}
+`;
+    const path = this.migrationsPath;
+    writeFileSync(resolve(path, `${this.newVersion}_${name}.js`), template);
   }
 }
 
