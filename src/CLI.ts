@@ -29,6 +29,15 @@ export class CLI {
     console.log('');
     console.log('  pg-migrator help');
     console.log('  pg-migrator <command> help');
+    console.log('');
+    console.log('Commands:');
+    console.log('  migrate            Applies all pending migrations from the given folder');
+    console.log('  up                 Applies the migration');
+    console.log('  down               Does a rollback of the migration');
+    console.log('  create             Creates a empty migration with the given name');
+    console.log('  createDatabase     Creates the database if not already existing');
+    console.log('  dropDatabase       Drops the database if already existing');
+    console.log('  help               Shows this overview');
   }
 
   migrateHelp() {
