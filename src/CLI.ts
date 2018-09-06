@@ -68,14 +68,14 @@ export class CLI {
     this.envHelp();
   }
 
-  create_databaseHelp() {
+  createDatabaseHelp() {
     console.log('Creates the database if not already existing');
     console.log('');
     console.log('Usage: pg-migrator create_database [paramenters]');
     this.envHelp();
   }
 
-  drop_databaseHelp() {
+  dropDatabaseHelp() {
     console.log('Drops the database if already existing');
     console.log('');
     console.log('Usage: pg-migrator drop_database [paramenters]');
@@ -186,6 +186,16 @@ export class CLI {
   async migrate() {
     const migrator = this.getMigrator();
     await migrator.migrate(this.migrations);
+  }
+
+  async createDatabase() {
+    const migrator = this.getMigrator();
+    await migrator.connector.createDatabase();
+  }
+
+  async dropDatabase() {
+    const migrator = this.getMigrator();
+    await migrator.connector.dropDatabase();
   }
 
   get newVersion() {
