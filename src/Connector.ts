@@ -12,6 +12,48 @@ export class Connector {
     return /[a-z]([a-z0-9_])*/.test(this.tableName);
   }
 
+  public async createDatabase() {
+    const pool = new Pool({ database: 'postgres' });
+    const result = await pool.query({
+      name: 'migrator--test--database-exists',
+      text: `
+        SELECT 1
+        FROM pg_database
+        WHERE datname = '${process.env.PGDATABASE}'
+      `,
+      values: [],
+    });
+    if (result.rows.length === 0) {
+      await pool.query({
+        name: 'migrator--test--create-database',
+        text: `CREATE DATABASE "${process.env.PGDATABASE}"`,
+        values: [],
+      });
+    }
+    await pool.end();
+  }
+
+  public async dropDatabase() {
+    const pool = new Pool({ database: 'postgres' });
+    const result = await pool.query({
+      name: 'migrator--test--database-exists',
+      text: `
+        SELECT 1
+        FROM pg_database
+        WHERE datname = '${process.env.PGDATABASE}'
+      `,
+      values: [],
+    });
+    if (result.rows.length > 0) {
+      await pool.query({
+        name: 'migrator--test--drop-database',
+        text: `DROP DATABASE "${process.env.PGDATABASE}"`,
+        values: [],
+      });
+    }
+    await pool.end();
+  }
+
   public async tableExists(): Promise<boolean> {
     const result = await this.pool.query({
       name: 'migrator--table-exists',
