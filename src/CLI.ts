@@ -24,7 +24,7 @@ export class CLI {
   }
 
   help() {
-    console.log('usage: pg-migrator <command> [paramenters]');
+    console.log('Usage: pg-migrator <command> [paramenters]');
     console.log('To see help text, you can run:');
     console.log('');
     console.log('  pg-migrator help');
@@ -34,7 +34,7 @@ export class CLI {
   migrateHelp() {
     console.log('Applies all pending migrations from the given folder');
     console.log('');
-    console.log('usage: pg-migrator migrate [paramenters]');
+    console.log('Usage: pg-migrator migrate [paramenters]');
     console.log('');
     console.log('Options:');
     console.log('  -f, --folder       Folder which contains the migrations');
@@ -45,7 +45,7 @@ export class CLI {
   upHelp() {
     console.log('Applies the migration');
     console.log('');
-    console.log('usage: pg-migrator up [paramenters]');
+    console.log('Usage: pg-migrator up [paramenters]');
     console.log('');
     console.log('Options:');
     console.log('  -f, --folder       Folder which contains the migrations');
@@ -58,7 +58,7 @@ export class CLI {
   downHelp() {
     console.log('Does a rollback of the migration');
     console.log('');
-    console.log('usage: pg-migrator down [paramenters]');
+    console.log('Usage: pg-migrator down [paramenters]');
     console.log('');
     console.log('Options:');
     console.log('  -f, --folder       Folder which contains the migrations');
@@ -71,40 +71,40 @@ export class CLI {
   create_databaseHelp() {
     console.log('Creates the database if not already existing');
     console.log('');
-    console.log('usage: pg-migrator create_database [paramenters]');
+    console.log('Usage: pg-migrator create_database [paramenters]');
     this.envHelp();
   }
 
   drop_databaseHelp() {
     console.log('Drops the database if already existing');
     console.log('');
-    console.log('usage: pg-migrator drop_database [paramenters]');
+    console.log('Usage: pg-migrator drop_database [paramenters]');
     this.envHelp();
   }
 
   createHelp() {
     console.log('Creates a empty migration with the given name');
     console.log('');
-    console.log('usage: pg-migrator create <name> [paramenters]');
+    console.log('Usage: pg-migrator create <name> [paramenters]');
     console.log('  -f, --folder       Folder which contains the migrations');
     console.log('                     (default: migrations)');
     this.envHelp();
   }
 
-  createFolder(path: string) {
+  private createFolder(path: string) {
     const parent = resolve(path, '..');
     if (!existsSync(parent)) this.createFolder(parent);
     if (!existsSync(path)) mkdirSync(path);
   }
 
-  get migrationsPath() {
+  private get migrationsPath() {
     const folderParam = this.getParam('f', 'folder');
     const path = folderParam ? resolve(folderParam) : resolve('migrations');
     this.createFolder(path);
     return path;
   }
 
-  get migrationKeys() {
+  private get migrationKeys() {
     const path = this.migrationsPath;
     const files = readdirSync(path);
     console.log(this.migrationsPath);
@@ -160,10 +160,10 @@ export class CLI {
           if (!nextParam.startsWith('-')) {
             result = nextParam;
           } else {
-            throw `invalid parameter value for «${shortParam}»: «${nextParam}»`;
+            throw `Invalid parameter value for «${shortParam}»: «${nextParam}»`;
           }
         } else {
-          throw `value missing for parameter «${shortParam}»`;
+          throw `Value missing for parameter «${shortParam}»`;
         }
       }
       if (param.startsWith(longParam)) {
