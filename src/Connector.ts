@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { Migration } from './types';
 
 export class Connector {
-  private pool: Pool;
+  pool: Pool;
 
   constructor(public tableName: string = 'migrations') {
     this.pool = new Pool();
