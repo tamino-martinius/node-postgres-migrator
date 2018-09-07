@@ -185,26 +185,31 @@ export class CLI {
   async up() {
     const migrator = this.getMigrator();
     await migrator.up(this.migration);
+    await migrator.connector.disconnect();
   }
 
   async down() {
     const migrator = this.getMigrator();
     await migrator.up(this.migration);
+    await migrator.connector.disconnect();
   }
 
   async migrate() {
     const migrator = this.getMigrator();
     await migrator.migrate(this.migrations);
+    await migrator.connector.disconnect();
   }
 
   async createDatabase() {
     const migrator = this.getMigrator();
     await migrator.connector.createDatabase();
+    await migrator.connector.disconnect();
   }
 
   async dropDatabase() {
     const migrator = this.getMigrator();
     await migrator.connector.dropDatabase();
+    await migrator.connector.disconnect();
   }
 
   get newVersion() {
