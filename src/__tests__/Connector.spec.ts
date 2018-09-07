@@ -1,5 +1,4 @@
 import { context } from './types';
-import { Pool } from 'pg';
 import {
   Connector,
   Migration,
