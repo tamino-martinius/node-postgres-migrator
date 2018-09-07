@@ -190,7 +190,7 @@ export class CLI {
 
   async down() {
     const migrator = this.getMigrator();
-    await migrator.up(this.migration);
+    await migrator.down(this.migration);
     await migrator.connector.disconnect();
   }
 
