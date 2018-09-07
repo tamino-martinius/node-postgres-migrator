@@ -4,6 +4,7 @@ import {
   CLI,
   Logger,
 } from '..';
+import Migrator from '../Migrator';
 
 let logger: Logger | undefined;
 const cli = () => new CLI(logger);
@@ -34,37 +35,30 @@ describe('CLI', () => {
     });
   });
 
-  describe('#help', () => {
-    const subject = () => cli().help();
+  [
+    'help',
+    'migrateHelp',
+    'upHelp',
+    'downHelp',
+    'createDatabaseHelp',
+    'dropDatabaseHelp',
+    'createHelp',
+  ].forEach((helpCommand) => {
+    describe(`#${helpCommand}`, () => {
+      const subject = () => cli()[helpCommand]();
 
-    context('when logger is present', {
-      definitions() {
-        logger = jest.fn();
-      },
-      tests() {
-        it('writes logs', () => {
-          expect(logger).not.toHaveBeenCalled();
-          subject();
-          expect(logger).toHaveBeenCalled();
-        });
-      },
-    });
-  });
-
-  describe('#migrateHelp', () => {
-    const subject = () => cli().help();
-
-    context('when logger is present', {
-      definitions() {
-        logger = jest.fn();
-      },
-      tests() {
-        it('writes logs', () => {
-          expect(logger).not.toHaveBeenCalled();
-          subject();
-          expect(logger).toHaveBeenCalled();
-        });
-      },
+      context('when logger is present', {
+        definitions() {
+          logger = jest.fn();
+        },
+        tests() {
+          it('writes logs', () => {
+            expect(logger).not.toHaveBeenCalled();
+            subject();
+            expect(logger).toHaveBeenCalled();
+          });
+        },
+      });
     });
   });
 });
