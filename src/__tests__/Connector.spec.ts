@@ -327,7 +327,7 @@ describe('Connector', () => {
           const connector = subject();
           expect(up).not.toHaveBeenCalledWith(connector.pool);
           expect(down).not.toHaveBeenCalledWith(connector.pool);
-          await connector.up(migration);
+          await connector.down(migration);
           expect(up).not.toHaveBeenCalledWith(connector.pool);
           expect(down).toHaveBeenCalledWith(connector.pool);
         });
