@@ -73,6 +73,7 @@ export class Migrator {
       if (!process) throw `Parent Migration «${key}» missing.`;
       return process;
     });
+    this.lastMigration = migration.key;
     return this.migrationPromises[migration.key] = new Promise(async (resolve, reject) => {
       await this.init();
       await Promise.all(parentPromises);
