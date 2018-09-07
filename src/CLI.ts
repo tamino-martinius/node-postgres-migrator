@@ -10,93 +10,100 @@ import { Migrator } from './Migrator';
 import { Connector } from './Connector';
 import { version } from 'punycode';
 
+export type Logger = (...params: any[]) => void;
+
 export class CLI {
   folder: string;
+  logger: Logger;
+
+  constructor(logger: Logger = console.log) {
+    this.logger = logger;
+  }
 
   private envHelp() {
-    console.log('');
-    console.log('Environment variables:');
-    console.log('  PGHOST             Host of postgres server');
-    console.log('  PGPORT             Port of postgres server ');
-    console.log('  PGUSER             Username of postgres user');
-    console.log('  PGPASSWORD         Password of postgres user');
-    console.log('  PGDATABASE         Database Name');
+    this.logger('');
+    this.logger('Environment variables:');
+    this.logger('  PGHOST             Host of postgres server');
+    this.logger('  PGPORT             Port of postgres server ');
+    this.logger('  PGUSER             Username of postgres user');
+    this.logger('  PGPASSWORD         Password of postgres user');
+    this.logger('  PGDATABASE         Database Name');
   }
 
   help() {
-    console.log('Usage: pg-migrator <command> [paramenters]');
-    console.log('To see help text, you can run:');
-    console.log('');
-    console.log('  pg-migrator help');
-    console.log('  pg-migrator <command> help');
-    console.log('');
-    console.log('Commands:');
-    console.log('  migrate            Applies all pending migrations from the given folder');
-    console.log('  up                 Applies the migration');
-    console.log('  down               Does a rollback of the migration');
-    console.log('  create             Creates a empty migration with the given name');
-    console.log('  createDatabase     Creates the database if not already existing');
-    console.log('  dropDatabase       Drops the database if already existing');
-    console.log('  help               Shows this overview');
+    this.logger('Usage: pg-migrator <command> [paramenters]');
+    this.logger('To see help text, you can run:');
+    this.logger('');
+    this.logger('  pg-migrator help');
+    this.logger('  pg-migrator <command> help');
+    this.logger('');
+    this.logger('Commands:');
+    this.logger('  migrate            Applies all pending migrations from the given folder');
+    this.logger('  up                 Applies the migration');
+    this.logger('  down               Does a rollback of the migration');
+    this.logger('  create             Creates a empty migration with the given name');
+    this.logger('  createDatabase     Creates the database if not already existing');
+    this.logger('  dropDatabase       Drops the database if already existing');
+    this.logger('  help               Shows this overview');
   }
 
   migrateHelp() {
-    console.log('Applies all pending migrations from the given folder');
-    console.log('');
-    console.log('Usage: pg-migrator migrate [paramenters]');
-    console.log('');
-    console.log('Options:');
-    console.log('  -f, --folder       Folder which contains the migrations');
-    console.log('                     (default: migrations)');
+    this.logger('Applies all pending migrations from the given folder');
+    this.logger('');
+    this.logger('Usage: pg-migrator migrate [paramenters]');
+    this.logger('');
+    this.logger('Options:');
+    this.logger('  -f, --folder       Folder which contains the migrations');
+    this.logger('                     (default: migrations)');
     this.envHelp();
   }
 
   upHelp() {
-    console.log('Applies the migration');
-    console.log('');
-    console.log('Usage: pg-migrator up [paramenters]');
-    console.log('');
-    console.log('Options:');
-    console.log('  -f, --folder       Folder which contains the migrations');
-    console.log('                     (default: migrations)');
-    console.log('  -k, --key          Key of the migration');
-    console.log('  -v, --version      Version of the migration (first part of key)');
+    this.logger('Applies the migration');
+    this.logger('');
+    this.logger('Usage: pg-migrator up [paramenters]');
+    this.logger('');
+    this.logger('Options:');
+    this.logger('  -f, --folder       Folder which contains the migrations');
+    this.logger('                     (default: migrations)');
+    this.logger('  -k, --key          Key of the migration');
+    this.logger('  -v, --version      Version of the migration (first part of key)');
     this.envHelp();
   }
 
   downHelp() {
-    console.log('Does a rollback of the migration');
-    console.log('');
-    console.log('Usage: pg-migrator down [paramenters]');
-    console.log('');
-    console.log('Options:');
-    console.log('  -f, --folder       Folder which contains the migrations');
-    console.log('                     (default: migrations)');
-    console.log('  -k, --key          Key of the migration');
-    console.log('  -v, --version      Version of the migration (first part of key)');
+    this.logger('Does a rollback of the migration');
+    this.logger('');
+    this.logger('Usage: pg-migrator down [paramenters]');
+    this.logger('');
+    this.logger('Options:');
+    this.logger('  -f, --folder       Folder which contains the migrations');
+    this.logger('                     (default: migrations)');
+    this.logger('  -k, --key          Key of the migration');
+    this.logger('  -v, --version      Version of the migration (first part of key)');
     this.envHelp();
   }
 
   createDatabaseHelp() {
-    console.log('Creates the database if not already existing');
-    console.log('');
-    console.log('Usage: pg-migrator create_database [paramenters]');
+    this.logger('Creates the database if not already existing');
+    this.logger('');
+    this.logger('Usage: pg-migrator create_database [paramenters]');
     this.envHelp();
   }
 
   dropDatabaseHelp() {
-    console.log('Drops the database if already existing');
-    console.log('');
-    console.log('Usage: pg-migrator drop_database [paramenters]');
+    this.logger('Drops the database if already existing');
+    this.logger('');
+    this.logger('Usage: pg-migrator drop_database [paramenters]');
     this.envHelp();
   }
 
   createHelp() {
-    console.log('Creates a empty migration with the given name');
-    console.log('');
-    console.log('Usage: pg-migrator create <name> [paramenters]');
-    console.log('  -f, --folder       Folder which contains the migrations');
-    console.log('                     (default: migrations)');
+    this.logger('Creates a empty migration with the given name');
+    this.logger('');
+    this.logger('Usage: pg-migrator create <name> [paramenters]');
+    this.logger('  -f, --folder       Folder which contains the migrations');
+    this.logger('                     (default: migrations)');
     this.envHelp();
   }
 
@@ -116,7 +123,7 @@ export class CLI {
   private get migrationKeys() {
     const path = this.migrationsPath;
     const files = readdirSync(path);
-    console.log(this.migrationsPath);
+    this.logger(this.migrationsPath);
     const jsFiles = files.filter(file => file.endsWith('.js'));
     return jsFiles.map(file => basename(file, '.js'));
   }
