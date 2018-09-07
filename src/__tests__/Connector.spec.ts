@@ -282,4 +282,56 @@ describe('Connector', () => {
       },
     });
   });
+
+  describe('#up', () => {
+    let migration: Migration;
+    const up = jest.fn();
+    const down = jest.fn();
+
+    context('when table is created before', {
+      async definitions() {
+        migration = {
+          up,
+          down,
+          key: 'test',
+        };
+      },
+      tests() {
+        it('calls up with current pool', async () => {
+          const connector = subject();
+          expect(up).not.toHaveBeenCalledWith(connector.pool);
+          expect(down).not.toHaveBeenCalledWith(connector.pool);
+          await connector.up(migration);
+          expect(up).toHaveBeenCalledWith(connector.pool);
+          expect(down).not.toHaveBeenCalledWith(connector.pool);
+        });
+      },
+    });
+  });
+
+  describe('#down', () => {
+    let migration: Migration;
+    const up = jest.fn();
+    const down = jest.fn();
+
+    context('when table is created before', {
+      async definitions() {
+        migration = {
+          up,
+          down,
+          key: 'test',
+        };
+      },
+      tests() {
+        it('calls down with current pool', async () => {
+          const connector = subject();
+          expect(up).not.toHaveBeenCalledWith(connector.pool);
+          expect(down).not.toHaveBeenCalledWith(connector.pool);
+          await connector.up(migration);
+          expect(up).not.toHaveBeenCalledWith(connector.pool);
+          expect(down).toHaveBeenCalledWith(connector.pool);
+        });
+      },
+    });
+  });
 });
