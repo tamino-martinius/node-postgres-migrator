@@ -1,10 +1,20 @@
 import { context } from './types';
+import { resolve } from 'path';
 import {
-  Migration,
   CLI,
+  Connector,
   Logger,
 } from '..';
-import Migrator from '../Migrator';
+
+if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
+
+beforeAll(async () => {
+  await new Connector().createDatabase();
+});
+
+afterAll(async () => {
+  await new Connector().dropDatabase();
+});
 
 let logger: Logger | undefined;
 const cli = () => new CLI(logger);
@@ -56,6 +66,76 @@ describe('CLI', () => {
             expect(logger).not.toHaveBeenCalled();
             subject();
             expect(logger).toHaveBeenCalled();
+          });
+        },
+      });
+    });
+  });
+
+  [
+    'up',
+    'down',
+  ].forEach((command) => {
+    describe(`#${command}`, () => {
+      const subject = () => cli()[command]();
+      const up = jest.fn();
+      jest.mock('../Migrator');
+
+      context('when just no arguments are present', {
+        definitions() {
+          process.argv = [];
+        },
+        tests() {
+          it('throws error', async () => {
+            try {
+              await subject();
+            } catch (error) {
+              return expect(error).toBeDefined();
+            }
+            expect(false).toBeTruthy(); // not expected to reach
+          });
+        },
+      });
+
+      context('when just folder arguments is present', {
+        definitions() {
+          process.argv = ['-f', resolve(__dirname)];
+        },
+        tests() {
+          it('throws error', async () => {
+            try {
+              await subject();
+            } catch (error) {
+              return expect(error).toBeDefined();
+            }
+            expect(false).toBeTruthy(); // not expected to reach
+          });
+        },
+      });
+
+      context('when just key arguments is present', {
+        definitions() {
+          process.argv = ['-k', 'test_migration'];
+        },
+        tests() {
+          it('throws error', async () => {
+            try {
+              await subject();
+            } catch (error) {
+              return expect(error).toBeDefined();
+            }
+            expect(false).toBeTruthy(); // not expected to reach
+          });
+        },
+      });
+
+      context('when just key and folder arguments are present', {
+        definitions() {
+          process.argv = ['-f', resolve(__dirname), '-k', 'test_migration'];
+        },
+        tests() {
+          it('reads migration from folder', async () => {
+            await subject();
           });
         },
       });
