@@ -208,6 +208,56 @@ describe('CLI', () => {
           });
         },
       });
+
+  describe('#migrate', () => {
+    const subject = () => cli().migrate();
+    const up = jest.fn();
+    jest.mock('../Migrator');
+
+    context('when just no arguments are present', {
+      definitions() {
+        process.argv = [];
+      },
+      tests() {
+        it('throws error', async () => {
+          try {
+            await subject();
+          } catch (error) {
+            return expect(error).toBeDefined();
+          }
+          expect(false).toBeTruthy(); // not expected to reach
+        });
+      },
+    });
+
+    context('when folder arguments are present', {
+      definitions() {
+        process.argv = ['-f', resolve(__dirname)];
+      },
+      tests() {
+        it('reads migration from folder', async () => {
+          const fn = require('./test_migration').up;
+          fn.mockClear();
+          expect(fn).not.toBeCalled();
+          await subject();
+          expect(fn).toBeCalled();
+        });
+      },
+    });
+
+    context('when folder argument is present with long notation', {
+      definitions() {
+        process.argv = [`--folder=${resolve(__dirname)}`];
+      },
+      tests() {
+        it('reads migration from folder', async () => {
+          const fn = require('./test_migration').up;
+          fn.mockClear();
+          expect(fn).not.toBeCalled();
+          await subject();
+          expect(fn).toBeCalled();
+        });
+      },
     });
   });
 });
