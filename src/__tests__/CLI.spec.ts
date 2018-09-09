@@ -113,6 +113,38 @@ describe('CLI', () => {
         },
       });
 
+      context('when folder argument is incomplete', {
+        definitions() {
+          process.argv = ['-f'];
+        },
+        tests() {
+          it('throws error', async () => {
+            try {
+              await subject();
+            } catch (error) {
+              return expect(error).toBeDefined();
+            }
+            expect(false).toBeTruthy(); // not expected to reach
+          });
+        },
+      });
+
+      context('when folder argument is directly followed by next', {
+        definitions() {
+          process.argv = ['-f', '-v'];
+        },
+        tests() {
+          it('throws error', async () => {
+            try {
+              await subject();
+            } catch (error) {
+              return expect(error).toBeDefined();
+            }
+            expect(false).toBeTruthy(); // not expected to reach
+          });
+        },
+      });
+
       context('when just key arguments is present', {
         definitions() {
           process.argv = ['-k', 'test_migration'];
@@ -129,7 +161,7 @@ describe('CLI', () => {
         },
       });
 
-      context('when just key and folder arguments are present', {
+      context('when key and folder arguments are present', {
         definitions() {
           process.argv = ['-f', resolve(__dirname), '-k', 'test_migration'];
         },
@@ -139,6 +171,17 @@ describe('CLI', () => {
           });
         },
       });
+
+      // context('when version and folder arguments are present', {
+      //   definitions() {
+      //     process.argv = ['-f', resolve(__dirname), '-v', 'test'];
+      //   },
+      //   tests() {
+      //     it('reads migration from folder', async () => {
+      //       await subject();
+      //     });
+      //   },
+      // });
     });
   });
 });
