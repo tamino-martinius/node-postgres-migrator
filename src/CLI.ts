@@ -150,7 +150,7 @@ export class CLI {
     }
     if (versionParam && versionParam.length > 0) {
       for (const key of keys) {
-        if (key.startsWith(`${version}_`) || key.startsWith(`${version}-`)) {
+        if (key.startsWith(`${versionParam}_`) || key.startsWith(`${versionParam}-`)) {
           return this.readMigration(key);
         }
       }
