@@ -182,7 +182,11 @@ describe('CLI', () => {
         },
         tests() {
           it('reads migration from folder', async () => {
+            const fn = require('./test_migration')[command];
+            fn.mockClear();
+            expect(fn).not.toBeCalled();
             await subject();
+            expect(fn).toBeCalled();
           });
         },
       });
@@ -193,7 +197,11 @@ describe('CLI', () => {
         },
         tests() {
           it('reads migration from folder', async () => {
+            const fn = require('./test_migration')[command];
+            fn.mockClear();
+            expect(fn).not.toBeCalled();
             await subject();
+            expect(fn).toBeCalled();
           });
         },
       });
@@ -204,10 +212,32 @@ describe('CLI', () => {
         },
         tests() {
           it('reads migration from folder', async () => {
+            const fn = require('./test_migration')[command];
+            fn.mockClear();
+            expect(fn).not.toBeCalled();
             await subject();
+            expect(fn).toBeCalled();
           });
         },
       });
+
+      context('when version is not present', {
+        definitions() {
+          process.argv = ['-f', resolve(__dirname), '-v', 'foo'];
+        },
+        tests() {
+          it('throws error', async () => {
+            try {
+              await subject();
+            } catch (error) {
+              return expect(error).toBeDefined();
+            }
+            expect(false).toBeTruthy(); // not expected to reach
+          });
+        },
+      });
+    });
+  });
 
   describe('#migrate', () => {
     const subject = () => cli().migrate();
