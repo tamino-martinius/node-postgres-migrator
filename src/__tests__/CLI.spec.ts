@@ -8,16 +8,15 @@ import {
 
 if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
+let logger: Logger | undefined;
+const cli = () => new CLI(logger);
+
 beforeAll(async () => {
-  const connector = new Connector();
-  await connector.createDatabase();
-  await connector.disconnect();
+  await cli().createDatabase();
 });
 
 afterAll(async () => {
-  const connector = new Connector();
-  await connector.dropDatabase();
-  await connector.disconnect();
+  await cli().dropDatabase();
 });
 
 afterEach(async () => {
@@ -30,9 +29,6 @@ afterEach(async () => {
     await connector.disconnect();
   }
 });
-
-let logger: Logger | undefined;
-const cli = () => new CLI(logger);
 
 describe('CLI', () => {
   describe('#new', () => {
