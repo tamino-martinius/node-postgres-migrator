@@ -1,6 +1,6 @@
 import { context } from './types';
 import { resolve } from 'path';
-import { readdirSync } from 'fs';
+import { readdirSync, unlinkSync } from 'fs';
 import {
   CLI,
   Connector,
@@ -294,9 +294,11 @@ describe('CLI', () => {
       },
       tests() {
         it('creates new migration in test folder', async () => {
-          const fileCount = readdirSync(resolve(__dirname)).length;
+          const files = readdirSync(resolve(__dirname));
           await subject();
-          expect(readdirSync(resolve(__dirname)).length).toBe(fileCount + 1);
+          const newFiles = readdirSync(resolve(__dirname)).filter(file => !files.includes(file));
+          expect(newFiles.length).toBe(1);
+          unlinkSync(resolve(__dirname, newFiles[0]));
         });
       },
     });
