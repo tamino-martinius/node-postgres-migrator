@@ -14,11 +14,15 @@ const subject = () => {
 };
 
 beforeAll(async () => {
-  await subject().createDatabase();
+  const connector = new Connector();
+  await connector.createDatabase();
+  await connector.disconnect();
 });
 
 afterAll(async () => {
-  await subject().dropDatabase();
+  const connector = new Connector();
+  await connector.dropDatabase();
+  await connector.disconnect();
 });
 
 afterEach(async () => {

@@ -9,11 +9,26 @@ import {
 if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
 beforeAll(async () => {
-  await new Connector().createDatabase();
+  const connector = new Connector();
+  await connector.createDatabase();
+  await connector.disconnect();
 });
 
 afterAll(async () => {
-  await new Connector().dropDatabase();
+  const connector = new Connector();
+  await connector.dropDatabase();
+  await connector.disconnect();
+});
+
+afterEach(async () => {
+  const connector = new Connector();
+  try {
+    await connector.dropTable();
+  } catch (error) {
+    // errors are expected here
+  } finally {
+    await connector.disconnect();
+  }
 });
 
 let logger: Logger | undefined;
