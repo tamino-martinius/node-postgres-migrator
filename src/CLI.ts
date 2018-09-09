@@ -8,13 +8,13 @@ import {
 import { Migration } from './types';
 import { Migrator } from './Migrator';
 import { Connector } from './Connector';
-import { version } from 'punycode';
 
 export type Logger = (...params: any[]) => void;
 
 export class CLI {
   folder: string;
   logger: Logger;
+  private cachedNodeVersion: number | undefined;
 
   constructor(logger: Logger = console.log) {
     this.logger = logger;
@@ -238,6 +238,12 @@ export class CLI {
     return new Date().toISOString().substr(0, 19).replace(/[-T:]/g, '');
   }
 
+  get nodeVersion() {
+    if (this.cachedNodeVersion) return this.cachedNodeVersion;
+    const version = Number(((process.version).match(/^v(\d+\.\d+)/) || ['', '0'])[1]);
+    return this.cachedNodeVersion = version;
+  }
+
   create() {
     const name = process.argv[3];
     if (!name || name.length === 0 || name.startsWith('-')) {
@@ -257,9 +263,9 @@ module.exports = {
    * @param {pg.Pool} client
    * @returns {Promise<void>}
    */
-  async up(client) {
+  ${this.nodeVersion > 7 ? 'async ' : ''}up(client) {
 
-    // remove async keyword when you are using a node version before 8
+    // ${this.nodeVersion > 7 ? 'Code for Migration' : 'Return Promise for Migration'}
 
   },
   /**
@@ -267,9 +273,9 @@ module.exports = {
    * @param {pg.Pool} client
    * @returns {Promise<void>}
    */
-  async down(client) {
+  ${this.nodeVersion > 7 ? 'async ' : ''}down(client) {
 
-    // remove async keyword when you are using a node version before 8
+    // ${this.nodeVersion > 7 ? 'Code for Rollback' : 'Return Promise for Rollback'}
 
   },
 }
