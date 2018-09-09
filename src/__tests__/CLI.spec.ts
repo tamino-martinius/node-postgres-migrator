@@ -172,16 +172,27 @@ describe('CLI', () => {
         },
       });
 
-      // context('when version and folder arguments are present', {
-      //   definitions() {
-      //     process.argv = ['-f', resolve(__dirname), '-v', 'test'];
-      //   },
-      //   tests() {
-      //     it('reads migration from folder', async () => {
-      //       await subject();
-      //     });
-      //   },
-      // });
+      context('when key and folder arguments are present with long notation', {
+        definitions() {
+          process.argv = [`--folder=${resolve(__dirname)}`, '--key=test_migration'];
+        },
+        tests() {
+          it('reads migration from folder', async () => {
+            await subject();
+          });
+        },
+      });
+
+      context('when version and folder arguments are present', {
+        definitions() {
+          process.argv = ['-f', resolve(__dirname), '-v', 'test'];
+        },
+        tests() {
+          it('reads migration from folder', async () => {
+            await subject();
+          });
+        },
+      });
     });
   });
 });
