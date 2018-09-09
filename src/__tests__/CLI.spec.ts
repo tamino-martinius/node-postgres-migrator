@@ -1,5 +1,6 @@
 import { context } from './types';
 import { resolve } from 'path';
+import { readdirSync } from 'fs';
 import {
   CLI,
   Connector,
@@ -89,7 +90,6 @@ describe('CLI', () => {
   ].forEach((command) => {
     describe(`#${command}`, () => {
       const subject = () => cli()[command]();
-      const up = jest.fn();
 
       context('when just no arguments are present', {
         definitions() {
@@ -236,7 +236,6 @@ describe('CLI', () => {
 
   describe('#migrate', () => {
     const subject = () => cli().migrate();
-    const up = jest.fn();
 
     context('when folder arguments are present', {
       definitions() {
@@ -264,6 +263,40 @@ describe('CLI', () => {
           expect(fn).not.toBeCalled();
           await subject();
           expect(fn).toBeCalled();
+        });
+      },
+    });
+  });
+
+  describe('#create', () => {
+    const subject = () => cli().create();
+
+    context('when name argument is not present', {
+      definitions() {
+        process.argv = [];
+      },
+      tests() {
+        it('throws error', async () => {
+          try {
+            await subject();
+          } catch (error) {
+            return expect(error).toBeDefined();
+          }
+          expect(false).toBeTruthy(); // not expected to reach
+        });
+      },
+    });
+
+
+    context('when name arguments is present', {
+      definitions() {
+        process.argv = ['-f', resolve(__dirname), 'create', 'test'];
+      },
+      tests() {
+        it('creates new migration in test folder', async () => {
+          const fileCount = readdirSync(resolve(__dirname)).length;
+          await subject();
+          expect(readdirSync(resolve(__dirname)).length).toBe(fileCount + 1);
         });
       },
     });
