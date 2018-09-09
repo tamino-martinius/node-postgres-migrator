@@ -34,7 +34,7 @@
     "node": ">=6.14.0"
   },
   "scripts": {
-    "coverage": "rm -rf coverage* && jest --coverage",
+    "coverage": "rm -rf coverage* && jest --coverage --maxWorkers=1",
     "test": "jest",
     "watch": "tsc -w",
     "ci": "npm run coverage && codecov",
