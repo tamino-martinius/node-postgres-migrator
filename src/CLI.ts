@@ -250,7 +250,6 @@ export class CLI {
       throw `Value missing for parameter «name»`;
     }
 
-    // Template for node 8+
     const template = `const pg = require('pg');
 
 /**
