@@ -10,6 +10,8 @@ node_js:
   - '10'
 script:
   - if [ "${COVERAGE}" = "true" ]; then npm run ci; else npm run test; fi
+services:
+  - postgresql
 matrix:
   include: # Add run with latest version and code coverage
     - node_js: 'node'
