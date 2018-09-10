@@ -83,7 +83,7 @@ describe('Migrator', () => {
               definitions() {
                 migrations = [
                   {
-                    key: 'test-1a',
+                    key: 'test-2a',
                     up: jest.fn(),
                     down: jest.fn(),
                   },
@@ -96,7 +96,7 @@ describe('Migrator', () => {
                   expect(fn).toBeCalled();
                   migrations = [
                     {
-                      key: 'test-1a',
+                      key: 'test-2a',
                       up: jest.fn(),
                       down: jest.fn(),
                     },
@@ -104,6 +104,36 @@ describe('Migrator', () => {
                   fn = migrations[0].up;
                   await subject();
                   expect(fn).not.toBeCalled();
+                });
+              },
+            });
+
+            context('when parent key was already applied', {
+              definitions() {
+                migrations = [
+                  {
+                    key: 'test-3a',
+                    up: jest.fn(),
+                    down: jest.fn(),
+                  },
+                ];
+              },
+              tests() {
+                it.only('applies migration', async () => {
+                  let fn = migrations[0].up;
+                  await subject();
+                  expect(fn).toBeCalled();
+                  migrations = [
+                    {
+                      parent: ['test-3a'],
+                      key: 'test-3b',
+                      up: jest.fn(),
+                      down: jest.fn(),
+                    },
+                  ];
+                  fn = migrations[0].up;
+                  await subject();
+                  expect(fn).toBeCalled();
                 });
               },
             });
