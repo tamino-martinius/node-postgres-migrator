@@ -51,6 +51,35 @@ describe('Migrator', () => {
           await subject();
           expect(fn).toBeCalled();
         });
+
+        context('when running migrate multiple times', {
+          definitions() {
+            migrations = [
+              {
+                key: 'test-1a',
+                up: jest.fn(),
+                down: jest.fn(),
+              },
+            ];
+          },
+          tests() {
+            it('applies migration', async () => {
+              let fn = migrations[0].up;
+              await subject();
+              expect(fn).toBeCalled();
+              migrations = [
+                {
+                  key: 'test-1b',
+                  up: jest.fn(),
+                  down: jest.fn(),
+                },
+              ];
+              fn = migrations[0].up;
+              await subject();
+              expect(fn).toBeCalled();
+            });
+          },
+        });
       },
     });
 
