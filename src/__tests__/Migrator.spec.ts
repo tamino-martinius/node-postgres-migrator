@@ -119,7 +119,7 @@ describe('Migrator', () => {
                 ];
               },
               tests() {
-                it.only('applies migration', async () => {
+                it('applies migration', async () => {
                   let fn = migrations[0].up;
                   await subject();
                   expect(fn).toBeCalled();
