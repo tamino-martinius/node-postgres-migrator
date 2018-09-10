@@ -13,6 +13,16 @@ const migrator = () => {
   return lastMigrator = new Migrator(new Connector());
 };
 
+afterEach(async () => {
+  if (lastMigrator) {
+    try {
+      await lastMigrator.connector.dropTable();
+    } catch (error) {
+      // errors are expected here
+    }
+  }
+});
+
 beforeAll(async () => {
   const connector = new Connector();
   await connector.createDatabase();
