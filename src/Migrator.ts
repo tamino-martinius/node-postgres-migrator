@@ -24,7 +24,6 @@ export class Migrator {
         resolve();
       });
     }
-    return this.initStatus;
   }
 
   public async migrate(migrations: Migration[]): Promise<void> {
