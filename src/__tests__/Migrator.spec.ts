@@ -32,7 +32,12 @@ describe('Migrator', () => {
     const subject = () => migrator().migrate(migrations);
 
     it('does not throw error', async () => {
-      expect(subject).not.toThrowError();
+      try {
+        await subject();
+      } catch (error) {
+        expect(false).toBeTruthy(); // not expected to reach
+      }
+      expect(true).toBeTruthy();
     });
 
     context('when migration is present', {
