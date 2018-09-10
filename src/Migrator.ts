@@ -10,7 +10,6 @@ export class Migrator {
   constructor(public connector: Connector) { }
 
   async init(): Promise<void> {
-    console.log('init');
     if (this.initStatus === true) return Promise.resolve();
     if (this.initStatus === false) {
       return this.initStatus = new Promise(async (resolve) => {
@@ -29,7 +28,6 @@ export class Migrator {
   }
 
   public async migrate(migrations: Migration[]): Promise<void> {
-    console.log('migrate');
     const promises: Promise<void>[] = [];
     let migrationCount = migrations.length;
     const migrationKeyLookup: Dict<boolean> = {};
@@ -69,7 +67,6 @@ export class Migrator {
   }
 
   public async up(migration: Migration): Promise<void> {
-    console.log('up');
     const parent = migration.parent || (this.lastMigration ? [this.lastMigration] : []);
     const parentPromises = parent.map((key) => {
       const process = this.migrationPromises[key];
@@ -95,7 +92,6 @@ export class Migrator {
   }
 
   public async down(migration: Migration): Promise<void> {
-    console.log('down');
     await this.init();
     try {
       await this.connector.beginTransaction();

@@ -9,7 +9,6 @@ if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
 let lastMigrator: Migrator | undefined;
 const migrator = () => {
-  console.log('migrator');
   if (lastMigrator) lastMigrator.connector.disconnect();
   return lastMigrator = new Migrator(new Connector());
 };
@@ -21,9 +20,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  console.log('afterAll');
   if (lastMigrator) await lastMigrator.connector.disconnect();
-  console.log('after disconnect');
   const connector = new Connector();
   await connector.dropDatabase();
   await connector.disconnect();
@@ -141,10 +138,6 @@ describe('Migrator', () => {
 
     const subject = () => migrator().up(migration);
 
-    it('does not throw error', async () => {
-      expect(subject).not.toThrowError();
-    });
-
     context('when migration is present', {
       definitions() {
         migration = {
@@ -192,8 +185,7 @@ describe('Migrator', () => {
         };
       },
       tests() {
-        it.only('throws error', async () => {
-          console.log('spec');
+        it('throws error', async () => {
           try {
             await subject();
           } catch (error) {
