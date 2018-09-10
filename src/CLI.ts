@@ -244,13 +244,8 @@ export class CLI {
     return this.cachedNodeVersion = version;
   }
 
-  create() {
-    const name = process.argv[3];
-    if (!name || name.length === 0 || name.startsWith('-')) {
-      throw `Value missing for parameter «name»`;
-    }
-
-    const template = `const pg = require('pg');
+  get template() {
+    return `const pg = require('pg');
 
 /**
  * Description of the Migration
@@ -279,8 +274,16 @@ module.exports = {
   },
 }
 `;
+  }
+
+  create() {
+    const name = process.argv[3];
+    if (!name || name.length === 0 || name.startsWith('-')) {
+      throw `Value missing for parameter «name»`;
+    }
+
     const path = this.migrationsPath;
-    writeFileSync(resolve(path, `${this.newVersion}_${name}.js`), template);
+    writeFileSync(resolve(path, `${this.newVersion}_${name}.js`), this.template);
   }
 }
 

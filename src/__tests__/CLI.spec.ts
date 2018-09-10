@@ -287,7 +287,6 @@ describe('CLI', () => {
       },
     });
 
-
     context('when name arguments is present', {
       definitions() {
         process.argv = ['-f', resolve(__dirname), 'create', 'test'];
@@ -303,4 +302,39 @@ describe('CLI', () => {
       },
     });
   });
+
+  if (cli().nodeVersion > 7) {
+    const version = process.version;
+    describe('#template', () => {
+      const subject = () => cli().template;
+
+      context('when version allows async/await', {
+        definitions() {
+          Object.defineProperty(process, 'version', { value: 'v8.0.0' });
+        },
+        reset() {
+          Object.defineProperty(process, 'version', { value: version });
+        },
+        tests() {
+          it('uses async', async () => {
+            expect(await subject()).toContain('async');
+          });
+        },
+      });
+
+      context('when version does not allow async/await', {
+        definitions() {
+          Object.defineProperty(process, 'version', { value: 'v6.0.0' });
+        },
+        reset() {
+          Object.defineProperty(process, 'version', { value: version });
+        },
+        tests() {
+          it('does not use async', async () => {
+            expect(await subject()).not.toContain('async');
+          });
+        },
+      });
+    });
+  }
 });
