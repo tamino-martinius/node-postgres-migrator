@@ -28,6 +28,7 @@ export class Migrator {
   }
 
   public async migrate(migrations: Migration[]): Promise<void> {
+    await this.init();
     const promises: Promise<void>[] = [];
     let migrationCount = migrations.length;
     const migrationKeyLookup: Dict<boolean> = {};
@@ -37,6 +38,10 @@ export class Migrator {
       while (index < migrations.length) {
         const migration = migrations[index];
         let processMigration = true;
+        if (this.migrationStatus[migration.key]) {
+          migrations.splice(index, 1);
+          continue; // migration already applied
+        }
         if (migration.parent !== undefined) {
           for (const key of migration.parent) {
             if (!this.migrationPromises[key]) {

@@ -78,6 +78,35 @@ describe('Migrator', () => {
               await subject();
               expect(fn).toBeCalled();
             });
+
+            context('when key was already applied', {
+              definitions() {
+                migrations = [
+                  {
+                    key: 'test-1a',
+                    up: jest.fn(),
+                    down: jest.fn(),
+                  },
+                ];
+              },
+              tests() {
+                it.only('skips second migration migration', async () => {
+                  let fn = migrations[0].up;
+                  await subject();
+                  expect(fn).toBeCalled();
+                  migrations = [
+                    {
+                      key: 'test-1a',
+                      up: jest.fn(),
+                      down: jest.fn(),
+                    },
+                  ];
+                  fn = migrations[0].up;
+                  await subject();
+                  expect(fn).not.toBeCalled();
+                });
+              },
+            });
           },
         });
       },
