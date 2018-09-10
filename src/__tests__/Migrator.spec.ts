@@ -196,4 +196,69 @@ describe('Migrator', () => {
       },
     });
   });
+
+  describe('#down', () => {
+    let migration: Migration = {
+      key: 'test-1',
+      up: jest.fn(),
+      down: jest.fn(),
+    };
+
+    const subject = () => migrator().down(migration);
+
+    context('when migration is present', {
+      definitions() {
+        migration = {
+          key: 'test-down-1',
+          up: jest.fn(),
+          down: jest.fn(),
+        };
+      },
+      tests() {
+        it('rolls back migration', async () => {
+          const fn = migration.down;
+          await subject();
+          expect(fn).toBeCalled();
+        });
+      },
+    });
+
+    context('when migration has invalid parent', {
+      definitions() {
+        migration = {
+          parent: ['test-0'],
+          key: 'test-down-2',
+          up: jest.fn(),
+          down: jest.fn(),
+        };
+      },
+      tests() {
+        it('rolls back migration', async () => {
+          const fn = migration.down;
+          await subject();
+          expect(fn).toBeCalled();
+        });
+      },
+    });
+
+    context('when migration throws error', {
+      definitions() {
+        migration = {
+          key: 'test-down-3',
+          up: jest.fn(),
+          down: () => { throw 'error'; },
+        };
+      },
+      tests() {
+        it('throws error', async () => {
+          try {
+            await subject();
+          } catch (error) {
+            return expect(error).toBeDefined();
+          }
+          expect(false).toBeTruthy(); // not expected to reach
+        });
+      },
+    });
+  });
 });
