@@ -90,7 +90,7 @@ describe('Migrator', () => {
                 ];
               },
               tests() {
-                it.only('skips second migration migration', async () => {
+                it('skips second migration migration', async () => {
                   let fn = migrations[0].up;
                   await subject();
                   expect(fn).toBeCalled();
