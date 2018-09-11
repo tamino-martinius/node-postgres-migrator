@@ -7,7 +7,7 @@ export interface BenchmarkRun {
   duration: number;
 }
 
-process.env.PGDATABASE = process.env.PGDATABASE || 'pg-migrator--compare-benchmark';
+process.env.PGDATABASE = process.env.PGDATABASE || 'pg-migrator--compare';
 
 export class Compare {
   constructor(public benchmarkModels: Dict<typeof Benchmark>) { }
@@ -54,7 +54,11 @@ export class Compare {
     } catch (error) {
       console.log({ error });
     } finally {
-      await this.teardown();
+      try {
+        await this.teardown();
+      } catch (_) {
+        // ignore errors here
+      }
     }
     console.log(['title', 'count', 'duration'].join(', '));
     results.map(run => console.log([run.title, run.count, run.duration].join(', ')));
