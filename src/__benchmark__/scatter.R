@@ -7,8 +7,9 @@ args = commandArgs(trailingOnly = F);
 dirname = dirname(sub("--file=", "", args[grep("--file", args)]));
 source(paste0(dirname, '/_cli.R'), chdir=T);
 
-if (!is.null(args.options$plot) && args.options$plot == TRUE) {
+if (is.null(args.options$title) || !is.null(args.options$plot) && args.options$plot == TRUE) {
   stop("usage: cat file.csv | Rscript scatter.R [variable=value ...]
+  --title    variable   title shown on top of the plot (required)
   --plot     filename   save plot to filename
   --log                 use a log-2 scale for xaxis in the plot");
 }
@@ -67,15 +68,15 @@ print(stats, row.names=F);
 if (!is.null(plot.filename)) {
   p = ggplot(stats, aes_string(x='count', y='duration', colour='title'));
   if (use.log2) {
-    p = p + scale_x_continuous(trans='log2');
+    p = p + scale_x_continuous();
   }
   p = p + geom_errorbar(
     aes(ymin=duration-confidence.interval, ymax=duration+confidence.interval),
-    width=.1, na.rm=TRUE
+    width=1, na.rm=TRUE, alpha=.5
   );
   p = p + geom_point();
   p = p + geom_line();
   p = p + ylab("duration of operations (lower is better)");
-  p = p + ggtitle(dat[1, 1]);
+  p = p + ggtitle(args.options$title);
   ggsave(plot.filename, p);
 }
