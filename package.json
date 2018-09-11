@@ -71,9 +71,9 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.ts",
-      "!src/__benchmark__/*",
-      "!src/__tests__/*",
-      "!src/__mocks__/*"
+      "!src/__benchmark__/**",
+      "!src/__tests__/**",
+      "!src/__mocks__/**"
     ]
   }
 }
