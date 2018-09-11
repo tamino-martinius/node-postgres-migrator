@@ -13,7 +13,7 @@ export class Migrate extends Benchmark {
         () => {
           resolve();
         },
-        ~~(Math.random() * 1000),
+        ~~(Math.random() * 200),
       );
     });
   }

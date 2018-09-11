@@ -10,4 +10,4 @@ const compareMigrate = new Compare({
   parallel: MigrateParallel,
 });
 
-compareMigrate.run(10, 100, 10, 10);
+compareMigrate.run(10, 100, 10, 5);
