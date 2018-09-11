@@ -35,17 +35,23 @@ export class Compare {
       await this.setup();
       for (const title in this.benchmarkModels) {
         const benchmarkModel = this.benchmarkModels[title];
+        const countProcesses: Promise<void>[] = [];
         for (let count = from; count <= to; count += step) {
-          const durationProcesses = Array.from({ length: samples }).map(async () => {
-            const benchmark = new benchmarkModel(this.nextId);
-            await benchmark.setup(count);
-            const duration = await benchmark.run();
-            await benchmark.teardown();
-            return duration;
-          });
-          const durations = await Promise.all(durationProcesses);
-          results.push(...durations.map(duration => ({ title, count, duration })));
+          countProcesses.push((async (count: number) => {
+            const durationProcesses = Array.from({ length: samples }).map(async () => {
+              const benchmark = new benchmarkModel(this.nextId);
+              console.log(benchmark.id);
+              await benchmark.setup(count);
+              const duration = await benchmark.run();
+              await benchmark.teardown();
+              console.log(benchmark.id);
+              return duration;
+            });
+            const durations = await Promise.all(durationProcesses);
+            results.push(...durations.map(duration => ({ title, count, duration })));
+          })(count));
         }
+        await Promise.all(countProcesses);
       }
     } catch (error) {
       console.log({ error });
