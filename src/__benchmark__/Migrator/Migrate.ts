@@ -5,7 +5,7 @@ export class Migrate extends Benchmark {
   lastIndex = 0;
   migrations: Migration[] = [];
   tableName = `benchmark-${this.id}`;
-  migrator = new Migrator(new Connector(this.tableName));
+  migrator = new Migrator(new Connector(this.tableName, { min: 1, max: 5 }));
 
   get simulateWork() {
     return new Promise((resolve) => {
