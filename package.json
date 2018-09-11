@@ -51,6 +51,7 @@
     "ts-dedent": "^1.0.0",
     "ts-jest": "^22.4.6",
     "ts-mjs": "^3.1.0",
+    "ts-node": "^7.0.1",
     "tslint": "^5.10.0",
     "tslint-config-airbnb": "^5.9.2",
     "typescript": "^2.9.2"
