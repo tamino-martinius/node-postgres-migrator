@@ -7,7 +7,7 @@ export interface BenchmarkRun {
   duration: number;
 }
 
-process.env.PGDATABASE = process.env.PGDATABASE || 'pg-migrator--compare';
+process.env.PGDATABASE = process.env.PGDATABASE || 'pg_migrator__compare';
 
 export class Compare {
   constructor(public benchmarkModels: Dict<typeof Benchmark>) { }
