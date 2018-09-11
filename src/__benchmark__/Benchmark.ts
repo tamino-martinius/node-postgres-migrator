@@ -12,13 +12,9 @@ export class Benchmark {
     throw 'must be implemented';
   }
 
-  async run(samples: number): Promise<number[]> {
-    const durations: number[] = [];
-    Array.from({ length: samples }).forEach(async () => {
-      const start = Date.now();
-      await this.main();
-      durations.push(Date.now() - start);
-    });
-    return durations;
+  async run(): Promise<number> {
+    const start = Date.now();
+    await this.main();
+    return Date.now() - start;
   }
 }
