@@ -38,8 +38,10 @@
     "test": "jest --maxWorkers=1",
     "watch": "tsc -w",
     "ci": "npm run coverage && codecov",
-    "benchmark": "ts-node src/__benchmark__/Migrator",
+    "benchmark:migrator": "node dist/__benchmark__/Migrator | Rscript src/__benchmark__/scatter.R --plot docs/compare--migrator-migrate.png --title \"Comparison of Migration strategies\" --log",
+    "benchmark": "npm run compile:benchmark && npm run benchmark:migrator",
     "compile": "rm -rf dist/* && tsc && tsc-mjs --sourceMap --declaration false --target esnext --module esnext --mjs",
+    "compile:benchmark": "rm -rf dist/* && tsc -p tsconfig.benchmark.json ",
     "preversion": "npm run compile && git add ."
   },
   "devDependencies": {
