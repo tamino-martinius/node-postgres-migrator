@@ -40,11 +40,9 @@ export class Compare {
           countProcesses.push((async (count: number) => {
             const durationProcesses = Array.from({ length: samples }).map(async () => {
               const benchmark = new benchmarkModel(this.nextId);
-              console.log(benchmark.id);
               await benchmark.setup(count);
               const duration = await benchmark.run();
               await benchmark.teardown();
-              console.log(benchmark.id);
               return duration;
             });
             const durations = await Promise.all(durationProcesses);
@@ -58,8 +56,8 @@ export class Compare {
     } finally {
       await this.teardown();
     }
-    console.log('title', 'count', 'duration');
-    results.map(run => console.log(run.title, run.count, run.duration));
+    console.log(['title', 'count', 'duration'].join(', '));
+    results.map(run => console.log([run.title, run.count, run.duration].join(', ')));
     return results;
   }
 }
