@@ -1,11 +1,11 @@
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 import { Migration } from './types';
 
 export class Connector {
   pool: Pool;
 
-  constructor(public tableName: string = 'migrations') {
-    this.pool = new Pool();
+  constructor(public tableName: string = 'migrations', poolConfig?: PoolConfig) {
+    this.pool = new Pool(poolConfig);
     if (!this.isTableNameValid) throw `Invalid table name «${this.tableName}»`;
   }
 
