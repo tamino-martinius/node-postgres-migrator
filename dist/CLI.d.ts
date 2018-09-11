@@ -1,0 +1,33 @@
+export declare type Logger = (...params: any[]) => void;
+export declare class CLI {
+    folder: string;
+    logger: Logger;
+    private cachedNodeVersion;
+    constructor(logger?: Logger);
+    private envHelp;
+    help(): void;
+    migrateHelp(): void;
+    upHelp(): void;
+    downHelp(): void;
+    createDatabaseHelp(): void;
+    dropDatabaseHelp(): void;
+    createHelp(): void;
+    private createFolder;
+    private readonly migrationsPath;
+    private readonly migrationKeys;
+    private readMigration;
+    private readonly migrations;
+    private readonly migration;
+    private getMigrator;
+    private getParam;
+    up(): Promise<void>;
+    down(): Promise<void>;
+    migrate(): Promise<void>;
+    createDatabase(): Promise<void>;
+    dropDatabase(): Promise<void>;
+    readonly newVersion: string;
+    readonly nodeVersion: number;
+    readonly template: string;
+    create(): void;
+}
+export default CLI;

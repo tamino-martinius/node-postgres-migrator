@@ -22,9 +22,9 @@ export class Migrator {
                 resolve();
             });
         }
-        return this.initStatus;
     }
     async migrate(migrations) {
+        await this.init();
         const promises = [];
         let migrationCount = migrations.length;
         const migrationKeyLookup = {};
@@ -34,6 +34,10 @@ export class Migrator {
             while (index < migrations.length) {
                 const migration = migrations[index];
                 let processMigration = true;
+                if (this.migrationStatus[migration.key]) {
+                    migrations.splice(index, 1);
+                    continue;
+                }
                 if (migration.parent !== undefined) {
                     for (const key of migration.parent) {
                         if (!this.migrationPromises[key]) {
@@ -71,12 +75,13 @@ export class Migrator {
                 throw `Parent Migration «${key}» missing.`;
             return process;
         });
+        this.lastMigration = migration.key;
         return this.migrationPromises[migration.key] = new Promise(async (resolve, reject) => {
             await this.init();
             await Promise.all(parentPromises);
             try {
                 await this.connector.beginTransaction();
-                await migration.up();
+                await this.connector.up(migration);
                 await this.connector.insertMigrationKey(migration.key);
                 await this.connector.endTransaction();
                 this.migrationStatus[migration.key] = true;
@@ -92,7 +97,7 @@ export class Migrator {
         await this.init();
         try {
             await this.connector.beginTransaction();
-            await migration.down();
+            await this.connector.down(migration);
             await this.connector.deleteMigrationKey(migration.key);
             await this.connector.endTransaction();
             delete this.migrationPromises[migration.key];

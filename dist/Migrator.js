@@ -33,11 +33,11 @@ class Migrator {
                     resolve();
                 }));
             }
-            return this.initStatus;
         });
     }
     migrate(migrations) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.init();
             const promises = [];
             let migrationCount = migrations.length;
             const migrationKeyLookup = {};
@@ -47,6 +47,10 @@ class Migrator {
                 while (index < migrations.length) {
                     const migration = migrations[index];
                     let processMigration = true;
+                    if (this.migrationStatus[migration.key]) {
+                        migrations.splice(index, 1);
+                        continue;
+                    }
                     if (migration.parent !== undefined) {
                         for (const key of migration.parent) {
                             if (!this.migrationPromises[key]) {
@@ -86,12 +90,13 @@ class Migrator {
                     throw `Parent Migration «${key}» missing.`;
                 return process;
             });
+            this.lastMigration = migration.key;
             return this.migrationPromises[migration.key] = new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 yield this.init();
                 yield Promise.all(parentPromises);
                 try {
                     yield this.connector.beginTransaction();
-                    yield migration.up();
+                    yield this.connector.up(migration);
                     yield this.connector.insertMigrationKey(migration.key);
                     yield this.connector.endTransaction();
                     this.migrationStatus[migration.key] = true;
@@ -109,7 +114,7 @@ class Migrator {
             yield this.init();
             try {
                 yield this.connector.beginTransaction();
-                yield migration.down();
+                yield this.connector.down(migration);
                 yield this.connector.deleteMigrationKey(migration.key);
                 yield this.connector.endTransaction();
                 delete this.migrationPromises[migration.key];

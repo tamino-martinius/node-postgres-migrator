@@ -1,13 +1,53 @@
 import { Pool } from 'pg';
 export class Connector {
-    constructor(tableName = 'migrations') {
+    constructor(tableName = 'migrations', poolConfig) {
         this.tableName = tableName;
-        this.pool = new Pool();
+        this.pool = new Pool(poolConfig);
         if (!this.isTableNameValid)
             throw `Invalid table name «${this.tableName}»`;
     }
     get isTableNameValid() {
         return /[a-z]([a-z0-9_])*/.test(this.tableName);
+    }
+    async createDatabase() {
+        const pool = new Pool({ database: 'postgres' });
+        const result = await pool.query({
+            name: 'migrator--test--database-exists',
+            text: `
+        SELECT 1
+        FROM pg_database
+        WHERE datname = '${process.env.PGDATABASE}'
+      `,
+            values: [],
+        });
+        if (result.rows.length === 0) {
+            await pool.query({
+                name: 'migrator--test--create-database',
+                text: `CREATE DATABASE "${process.env.PGDATABASE}"`,
+                values: [],
+            });
+        }
+        await pool.end();
+    }
+    async dropDatabase() {
+        const pool = new Pool({ database: 'postgres' });
+        const result = await pool.query({
+            name: 'migrator--test--database-exists',
+            text: `
+        SELECT 1
+        FROM pg_database
+        WHERE datname = '${process.env.PGDATABASE}'
+      `,
+            values: [],
+        });
+        if (result.rows.length > 0) {
+            await pool.query({
+                name: 'migrator--test--drop-database',
+                text: `DROP DATABASE "${process.env.PGDATABASE}"`,
+                values: [],
+            });
+        }
+        await pool.end();
     }
     async tableExists() {
         const result = await this.pool.query({
@@ -107,6 +147,12 @@ export class Connector {
             text: 'ROLLBACK',
             values: [],
         });
+    }
+    async up(migration) {
+        await migration.up(this.pool);
+    }
+    async down(migration) {
+        await migration.down(this.pool);
     }
     async disconnect() {
         if (this.pool.totalCount > 0) {

@@ -5,6 +5,7 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./Migrator"));
 __export(require("./Connector"));
+__export(require("./CLI"));
 const Migrator_1 = require("./Migrator");
 exports.default = Migrator_1.Migrator;
 //# sourceMappingURL=index.js.map
