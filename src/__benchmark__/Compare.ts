@@ -18,16 +18,12 @@ export class Compare {
   }
 
   async setup() {
-    console.log('setup compare');
-
     const connector = new Connector();
     await connector.createDatabase();
     await connector.disconnect();
   }
 
   async teardown() {
-    console.log('teardown compare');
-
     const connector = new Connector();
     await connector.dropDatabase();
     await connector.disconnect();
@@ -40,15 +36,19 @@ export class Compare {
       for (const title in this.benchmarkModels) {
         const benchmarkModel = this.benchmarkModels[title];
         for (let count = from; count <= to; count += step) {
-          const benchmark = new benchmarkModel(this.nextId);
-          await benchmark.setup(count);
-          const durations = await benchmark.run(samples);
-          await benchmark.teardown();
-          const runs = durations.map(duration => ({ duration, count, title }));
-          console.log(runs);
-          results.push(...runs);
+          const durationProcesses = Array.from({ length: samples }).map(async () => {
+            const benchmark = new benchmarkModel(this.nextId);
+            await benchmark.setup(count);
+            const duration = await benchmark.run();
+            await benchmark.teardown();
+            return duration;
+          });
+          const durations = await Promise.all(durationProcesses);
+          results.push(...durations.map(duration => ({ title, count, duration })));
         }
       }
+    } catch (error) {
+      console.log({ error });
     } finally {
       await this.teardown();
     }
