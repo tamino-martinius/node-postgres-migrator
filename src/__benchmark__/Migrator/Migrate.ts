@@ -27,13 +27,10 @@ export class Migrate extends Benchmark {
   }
 
   async setup(_: number) {
-    console.log('setup', this.tableName);
-
     await this.migrator.connector.createTable();
   }
 
   async teardown() {
-    console.log('teardown', this.tableName);
     await this.migrator.connector.dropTable();
     await this.migrator.connector.disconnect();
   }
