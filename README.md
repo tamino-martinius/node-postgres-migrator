@@ -11,9 +11,20 @@ Migrations for [Postgres](https://www.npmjs.com/package/pg).
 - Support of parallel migrations when the parent migrations are defined
 - Ships with TypeScript types, commonJs (.js) and module exports (.mjs)
 
-## Table of contents
+## Status
 
 WIP - This package is currently in development with the first alpha released.
+
+- [x] Up
+- [x] Down
+- [x] Migrate
+- [x] Transactions
+- [x] Single Rollback
+- [ ] Cascading Rollback
+- [x] CLI
+- [x] API
+- [ ] Documentation
+- [x] Benchmark
 
 ## Changelog
 
