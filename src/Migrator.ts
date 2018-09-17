@@ -12,8 +12,10 @@ export class Migrator {
   public async createDatabase() {
     const connector = this.connect();
     try {
-      return await connector.createDatabase();
+      console.log('createDB');
+      await connector.createDatabase();
     } finally {
+      console.log('createDBDiscconnect');
       await connector.disconnect();
     }
   }
@@ -21,7 +23,7 @@ export class Migrator {
   public async dropDatabase() {
     const connector = this.connect();
     try {
-      return await connector.dropDatabase();
+      await connector.dropDatabase();
     } finally {
       await connector.disconnect();
     }
@@ -30,7 +32,7 @@ export class Migrator {
   public async createTable() {
     const connector = this.connect();
     try {
-      return await connector.createTable();
+      await connector.createTable();
     } finally {
       await connector.disconnect();
     }
@@ -38,17 +40,19 @@ export class Migrator {
 
   public async tableExists() {
     const connector = this.connect();
+    let result = false;
     try {
-      return await connector.tableExists();
+      result = await connector.tableExists();
     } finally {
       await connector.disconnect();
+      return result;
     }
   }
 
   public async dropTable() {
     const connector = this.connect();
     try {
-      return await connector.dropTable();
+      await connector.dropTable();
     } finally {
       await connector.disconnect();
     }
@@ -57,7 +61,7 @@ export class Migrator {
   public async migrate(migrations: Migration[]): Promise<void> {
     const connector = this.connect();
     try {
-      return await connector.migrate(migrations);
+      await connector.migrate(migrations);
     } finally {
       await connector.disconnect();
     }
@@ -66,7 +70,7 @@ export class Migrator {
   public async up(migration: Migration): Promise<void> {
     const connector = this.connect();
     try {
-      return await connector.up(migration);
+      await connector.up(migration);
     } finally {
       await connector.disconnect();
     }
@@ -75,7 +79,7 @@ export class Migrator {
   public async down(migration: Migration): Promise<void> {
     const connector = this.connect();
     try {
-      return await connector.down(migration);
+      await connector.down(migration);
     } finally {
       await connector.disconnect();
     }
