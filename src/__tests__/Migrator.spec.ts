@@ -1,6 +1,5 @@
 import { context } from './types';
 import {
-  Connector,
   Migration,
   Migrator,
 } from '..';
@@ -10,15 +9,17 @@ if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 const connect = () => new Migrator();
 
 afterEach(async () => {
-  await connect().dropTable();
+  return await connect().dropTable();
 });
 
 beforeAll(async () => {
+  console.log('0');
   await connect().createDatabase();
+  console.log('00');
 });
 
 afterAll(async () => {
-  await connect().dropDatabase();
+  return await connect().dropDatabase();
 });
 
 describe('Migrator', () => {
@@ -27,6 +28,8 @@ describe('Migrator', () => {
     const subject = () => connect().migrate(migrations);
 
     it('does not throw error', async () => {
+      console.log('1');
+
       try {
         await subject();
       } catch (error) {

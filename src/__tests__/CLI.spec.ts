@@ -9,30 +9,31 @@ import {
 if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
 let logger: Logger | undefined;
-const cli = () => new CLI(logger);
+const connect = () => new CLI(logger);
 
 beforeAll(async () => {
-  await cli().createDatabase();
+  return await connect().createDatabase();
 });
 
 afterAll(async () => {
-  await cli().dropDatabase();
+  return await connect().dropDatabase();
 });
 
 afterEach(async () => {
-  await cli().dropTable();
+  return await connect().dropTable();
 });
 
 describe('CLI', () => {
   describe('#new', () => {
+    const subject = () => connect();
+
     context('when logger is not present', {
       definitions() {
         logger = undefined;
       },
       tests() {
         it('will set console.log as default', () => {
-          const connector = cli();
-          expect(connector.logger).toBe(console.log);
+          expect(subject().logger).toBe(console.log);
         });
       },
     });
@@ -43,7 +44,7 @@ describe('CLI', () => {
       },
       tests() {
         it('will use passed logger', () => {
-          expect(cli().logger).toBe(logger);
+          expect(subject().logger).toBe(logger);
         });
       },
     });
@@ -59,7 +60,7 @@ describe('CLI', () => {
     'createHelp',
   ].forEach((helpCommand) => {
     describe(`#${helpCommand}`, () => {
-      const subject = () => cli()[helpCommand]();
+      const subject = () => connect()[helpCommand]();
 
       context('when logger is present', {
         definitions() {
@@ -81,7 +82,7 @@ describe('CLI', () => {
     'down',
   ].forEach((command) => {
     describe(`#${command}`, () => {
-      const subject = () => cli()[command]();
+      const subject = () => connect()[command]();
 
       context('when just no arguments are present', {
         definitions() {
@@ -227,7 +228,7 @@ describe('CLI', () => {
   });
 
   describe('#migrate', () => {
-    const subject = () => cli().migrate();
+    const subject = () => connect().migrate();
 
     context('when folder arguments are present', {
       definitions() {
@@ -261,7 +262,7 @@ describe('CLI', () => {
   });
 
   describe('#create', () => {
-    const subject = () => cli().create();
+    const subject = () => connect().create();
 
     context('when name argument is not present', {
       definitions() {
@@ -295,10 +296,10 @@ describe('CLI', () => {
     });
   });
 
-  if (cli().nodeVersion > 7) {
+  if (connect().nodeVersion > 7) {
     const version = process.version;
     describe('#template', () => {
-      const subject = () => cli().template;
+      const subject = () => connect().template;
 
       context('when version allows async/await', {
         definitions() {
