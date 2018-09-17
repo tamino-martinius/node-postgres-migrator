@@ -7,39 +7,24 @@ import {
 
 if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
-let lastMigrator: Migrator | undefined;
-const migrator = () => {
-  if (lastMigrator) lastMigrator.connector.disconnect();
-  return lastMigrator = new Migrator(new Connector());
-};
+const connect = () => new Migrator();
 
 afterEach(async () => {
-  if (lastMigrator) {
-    try {
-      await lastMigrator.connector.dropTable();
-    } catch (error) {
-      // errors are expected here
-    }
-  }
+  await connect().dropTable();
 });
 
 beforeAll(async () => {
-  const connector = new Connector();
-  await connector.createDatabase();
-  await connector.disconnect();
+  await connect().createDatabase();
 });
 
 afterAll(async () => {
-  if (lastMigrator) await lastMigrator.connector.disconnect();
-  const connector = new Connector();
-  await connector.dropDatabase();
-  await connector.disconnect();
+  await connect().dropDatabase();
 });
 
 describe('Migrator', () => {
   describe('#migrate', () => {
     let migrations: Migration[] = [];
-    const subject = () => migrator().migrate(migrations);
+    const subject = () => connect().migrate(migrations);
 
     it('does not throw error', async () => {
       try {
@@ -239,7 +224,7 @@ describe('Migrator', () => {
       down: jest.fn(),
     };
 
-    const subject = () => migrator().up(migration);
+    const subject = () => connect().up(migration);
 
     context('when migration is present', {
       definitions() {
@@ -307,7 +292,7 @@ describe('Migrator', () => {
       down: jest.fn(),
     };
 
-    const subject = () => migrator().down(migration);
+    const subject = () => connect().down(migration);
 
     context('when migration is present', {
       definitions() {
@@ -360,6 +345,31 @@ describe('Migrator', () => {
             return expect(error).toBeDefined();
           }
           expect(false).toBeTruthy(); // not expected to reach
+        });
+      },
+    });
+  });
+
+  describe('#dropTable', () => {
+    const subject = () => connect().dropTable();
+
+    it('does nothing when no table present', async () => {
+      const migrator = connect();
+      expect(await migrator.tableExists()).toBe(false);
+      await subject();
+      expect(await migrator.tableExists()).toBe(false);
+    });
+
+    context('when table is created before', {
+      async definitions() {
+        await connect().createTable();
+      },
+      tests() {
+        it('drops table', async () => {
+          const migrator = await connect();
+          expect(await migrator.tableExists()).toBe(true);
+          await subject();
+          expect(await migrator.tableExists()).toBe(false);
         });
       },
     });

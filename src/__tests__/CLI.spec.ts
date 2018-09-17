@@ -3,7 +3,6 @@ import { resolve } from 'path';
 import { readdirSync, unlinkSync } from 'fs';
 import {
   CLI,
-  Connector,
   Logger,
 } from '..';
 
@@ -21,14 +20,7 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
-  const connector = new Connector();
-  try {
-    await connector.dropTable();
-  } catch (error) {
-    // errors are expected here
-  } finally {
-    await connector.disconnect();
-  }
+  await cli().dropTable();
 });
 
 describe('CLI', () => {
