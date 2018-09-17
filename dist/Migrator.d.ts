@@ -1,13 +1,15 @@
-import { Dict, Migration } from './types';
-import { Connector } from './Connector';
+import { Migration } from './types';
+import { PoolConfig } from 'pg';
 export declare class Migrator {
-    connector: Connector;
-    migrationPromises: Dict<Promise<void>>;
-    migrationStatus: Dict<boolean>;
-    initStatus: boolean | Promise<void>;
-    lastMigration: string | undefined;
-    constructor(connector: Connector);
-    init(): Promise<void>;
+    tableName: string;
+    poolConfig?: PoolConfig | undefined;
+    constructor(tableName?: string, poolConfig?: PoolConfig | undefined);
+    private connect;
+    createDatabase(): Promise<void>;
+    dropDatabase(): Promise<void>;
+    createTable(): Promise<void>;
+    tableExists(): Promise<boolean>;
+    dropTable(): Promise<void>;
     migrate(migrations: Migration[]): Promise<void>;
     up(migration: Migration): Promise<void>;
     down(migration: Migration): Promise<void>;

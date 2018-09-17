@@ -11,6 +11,7 @@ export declare class CLI {
     downHelp(): void;
     createDatabaseHelp(): void;
     dropDatabaseHelp(): void;
+    dropTableHelp(): void;
     createHelp(): void;
     private createFolder;
     private readonly migrationsPath;
@@ -25,6 +26,7 @@ export declare class CLI {
     migrate(): Promise<void>;
     createDatabase(): Promise<void>;
     dropDatabase(): Promise<void>;
+    dropTable(): Promise<void>;
     readonly newVersion: string;
     readonly nodeVersion: number;
     readonly template: string;
