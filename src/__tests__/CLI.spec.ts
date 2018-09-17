@@ -57,6 +57,7 @@ describe('CLI', () => {
     'downHelp',
     'createDatabaseHelp',
     'dropDatabaseHelp',
+    'dropTable',
     'createHelp',
   ].forEach((helpCommand) => {
     describe(`#${helpCommand}`, () => {
