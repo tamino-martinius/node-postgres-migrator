@@ -3,13 +3,20 @@ import { PoolConfig } from 'pg';
 import { Connector } from './Connector';
 
 export class Migrator {
-  constructor(public poolConfig?: PoolConfig & { tableName: string }) { }
   public tableName: string = 'migrations';
+  public poolConfig: PoolConfig | undefined;
+
+  constructor(poolConfig?: PoolConfig & { tableName: string }) {
+    if (poolConfig) {
+      if (poolConfig.tableName) {
+        this.tableName = poolConfig.tableName;
+      }
+      delete poolConfig.tableName;
+      this.poolConfig = poolConfig;
+    }
+  }
 
   private connect() {
-    if (this.poolConfig && this.poolConfig.tableName) {
-      this.tableName = this.poolConfig.tableName;
-    }
     return new Connector(this.tableName, this.poolConfig);
   }
 
