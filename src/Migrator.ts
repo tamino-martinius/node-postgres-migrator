@@ -3,10 +3,12 @@ import { PoolConfig } from 'pg';
 import { Connector } from './Connector';
 
 export class Migrator {
-  constructor(public tableName: string = 'migrations', public poolConfig?: PoolConfig) { }
+  constructor(public poolConfig?: PoolConfig & { tableName: string }) { }
 
   private connect() {
-    return new Connector(this.tableName, this.poolConfig);
+    let tableName = 'migrations';
+    if (this.poolConfig && this.poolConfig.tableName) tableName = this.poolConfig.tableName;
+    return new Connector(tableName, this.poolConfig);
   }
 
   public async createDatabase() {
