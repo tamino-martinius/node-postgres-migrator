@@ -2,17 +2,19 @@ import { Pool, PoolConfig } from 'pg';
 import { Dict, Migration } from './types';
 
 export class Connector {
-  private pool: Pool;
+  private cachedPool: Pool | undefined;
   private migrationPromises: Dict<Promise<void>> = {};
   private migrationStatus: Dict<boolean> = {};
   private initStatus: boolean | Promise<void> = false;
   private lastMigration: string | undefined;
-  private static number = 0;
-  private number = Connector.number += 1;
 
-  constructor(public tableName: string = 'migrations', poolConfig?: PoolConfig) {
-    this.pool = new Pool(poolConfig);
+  constructor(public tableName: string, public poolConfig: PoolConfig | undefined) {
     if (!this.isTableNameValid) throw `Invalid table name «${this.tableName}»`;
+  }
+
+  get pool(): Pool {
+    if (this.cachedPool) return this.cachedPool;
+    return this.cachedPool = new Pool(this.poolConfig);
   }
 
   private get isTableNameValid() {

@@ -1,7 +1,6 @@
 import { resolve, basename } from 'path';
 import { readdirSync, existsSync, mkdirSync, writeFileSync, } from 'fs';
 import { Migrator } from './Migrator';
-import { Connector } from './Connector';
 export class CLI {
     constructor(logger = console.log) {
         this.logger = logger;
@@ -29,6 +28,7 @@ export class CLI {
         this.logger('  create             Creates a empty migration with the given name');
         this.logger('  createDatabase     Creates the database if not already existing');
         this.logger('  dropDatabase       Drops the database if already existing');
+        this.logger('  dropTable          Drops the migration table');
         this.logger('  help               Shows this overview');
     }
     migrateHelp() {
@@ -68,13 +68,19 @@ export class CLI {
     createDatabaseHelp() {
         this.logger('Creates the database if not already existing');
         this.logger('');
-        this.logger('Usage: pg-migrator create_database [paramenters]');
+        this.logger('Usage: pg-migrator createDatabase [paramenters]');
         this.envHelp();
     }
     dropDatabaseHelp() {
         this.logger('Drops the database if already existing');
         this.logger('');
-        this.logger('Usage: pg-migrator drop_database [paramenters]');
+        this.logger('Usage: pg-migrator dropDatabase [paramenters]');
+        this.envHelp();
+    }
+    dropTableHelp() {
+        this.logger('Drops the migration table');
+        this.logger('');
+        this.logger('Usage: pg-migrator dropTable [paramenters]');
         this.envHelp();
     }
     createHelp() {
@@ -131,10 +137,10 @@ export class CLI {
             }
             throw `Unable to find version «${versionParam}» in folder «${path}»`;
         }
-        throw `Unable to find migration - please provide either version or key`;
+        throw 'Unable to find migration - please provide either version or key';
     }
     getMigrator(tableName) {
-        return new Migrator(new Connector(tableName));
+        return new Migrator(tableName);
     }
     getParam(shortKey, longKey) {
         const shortParam = `-${shortKey}`;
@@ -164,49 +170,22 @@ export class CLI {
         return result;
     }
     async up() {
-        const migrator = this.getMigrator();
-        try {
-            await migrator.up(this.migration);
-        }
-        finally {
-            await migrator.connector.disconnect();
-        }
+        await this.getMigrator().up(this.migration);
     }
     async down() {
-        const migrator = this.getMigrator();
-        try {
-            await migrator.down(this.migration);
-        }
-        finally {
-            await migrator.connector.disconnect();
-        }
+        await this.getMigrator().down(this.migration);
     }
     async migrate() {
-        const migrator = this.getMigrator();
-        try {
-            await migrator.migrate(this.migrations);
-        }
-        finally {
-            await migrator.connector.disconnect();
-        }
+        await this.getMigrator().migrate(this.migrations);
     }
     async createDatabase() {
-        const migrator = this.getMigrator();
-        try {
-            await migrator.connector.createDatabase();
-        }
-        finally {
-            await migrator.connector.disconnect();
-        }
+        await this.getMigrator().createDatabase();
     }
     async dropDatabase() {
-        const migrator = this.getMigrator();
-        try {
-            await migrator.connector.dropDatabase();
-        }
-        finally {
-            await migrator.connector.disconnect();
-        }
+        await this.getMigrator().dropDatabase();
+    }
+    async dropTable() {
+        await this.getMigrator().dropTable();
     }
     get newVersion() {
         return new Date().toISOString().substr(0, 19).replace(/[-T:]/g, '');
@@ -251,7 +230,7 @@ module.exports = {
     create() {
         const name = process.argv[3];
         if (!name || name.length === 0 || name.startsWith('-')) {
-            throw `Value missing for parameter «name»`;
+            throw `Value missing for parameter «${name}»`;
         }
         const path = this.migrationsPath;
         writeFileSync(resolve(path, `${this.newVersion}_${name}.js`), this.template);

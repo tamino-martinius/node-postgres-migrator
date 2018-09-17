@@ -11,7 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = require("path");
 const fs_1 = require("fs");
 const Migrator_1 = require("./Migrator");
-const Connector_1 = require("./Connector");
 class CLI {
     constructor(logger = console.log) {
         this.logger = logger;
@@ -39,6 +38,7 @@ class CLI {
         this.logger('  create             Creates a empty migration with the given name');
         this.logger('  createDatabase     Creates the database if not already existing');
         this.logger('  dropDatabase       Drops the database if already existing');
+        this.logger('  dropTable          Drops the migration table');
         this.logger('  help               Shows this overview');
     }
     migrateHelp() {
@@ -78,13 +78,19 @@ class CLI {
     createDatabaseHelp() {
         this.logger('Creates the database if not already existing');
         this.logger('');
-        this.logger('Usage: pg-migrator create_database [paramenters]');
+        this.logger('Usage: pg-migrator createDatabase [paramenters]');
         this.envHelp();
     }
     dropDatabaseHelp() {
         this.logger('Drops the database if already existing');
         this.logger('');
-        this.logger('Usage: pg-migrator drop_database [paramenters]');
+        this.logger('Usage: pg-migrator dropDatabase [paramenters]');
+        this.envHelp();
+    }
+    dropTableHelp() {
+        this.logger('Drops the migration table');
+        this.logger('');
+        this.logger('Usage: pg-migrator dropTable [paramenters]');
         this.envHelp();
     }
     createHelp() {
@@ -141,10 +147,10 @@ class CLI {
             }
             throw `Unable to find version «${versionParam}» in folder «${path}»`;
         }
-        throw `Unable to find migration - please provide either version or key`;
+        throw 'Unable to find migration - please provide either version or key';
     }
     getMigrator(tableName) {
-        return new Migrator_1.Migrator(new Connector_1.Connector(tableName));
+        return new Migrator_1.Migrator(tableName);
     }
     getParam(shortKey, longKey) {
         const shortParam = `-${shortKey}`;
@@ -175,57 +181,32 @@ class CLI {
     }
     up() {
         return __awaiter(this, void 0, void 0, function* () {
-            const migrator = this.getMigrator();
-            try {
-                yield migrator.up(this.migration);
-            }
-            finally {
-                yield migrator.connector.disconnect();
-            }
+            yield this.getMigrator().up(this.migration);
         });
     }
     down() {
         return __awaiter(this, void 0, void 0, function* () {
-            const migrator = this.getMigrator();
-            try {
-                yield migrator.down(this.migration);
-            }
-            finally {
-                yield migrator.connector.disconnect();
-            }
+            yield this.getMigrator().down(this.migration);
         });
     }
     migrate() {
         return __awaiter(this, void 0, void 0, function* () {
-            const migrator = this.getMigrator();
-            try {
-                yield migrator.migrate(this.migrations);
-            }
-            finally {
-                yield migrator.connector.disconnect();
-            }
+            yield this.getMigrator().migrate(this.migrations);
         });
     }
     createDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
-            const migrator = this.getMigrator();
-            try {
-                yield migrator.connector.createDatabase();
-            }
-            finally {
-                yield migrator.connector.disconnect();
-            }
+            yield this.getMigrator().createDatabase();
         });
     }
     dropDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
-            const migrator = this.getMigrator();
-            try {
-                yield migrator.connector.dropDatabase();
-            }
-            finally {
-                yield migrator.connector.disconnect();
-            }
+            yield this.getMigrator().dropDatabase();
+        });
+    }
+    dropTable() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.getMigrator().dropTable();
         });
     }
     get newVersion() {
@@ -271,7 +252,7 @@ module.exports = {
     create() {
         const name = process.argv[3];
         if (!name || name.length === 0 || name.startsWith('-')) {
-            throw `Value missing for parameter «name»`;
+            throw `Value missing for parameter «${name}»`;
         }
         const path = this.migrationsPath;
         fs_1.writeFileSync(path_1.resolve(path, `${this.newVersion}_${name}.js`), this.template);

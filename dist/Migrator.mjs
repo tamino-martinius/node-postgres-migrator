@@ -1,111 +1,84 @@
+import { Connector } from './Connector';
 export class Migrator {
-    constructor(connector) {
-        this.connector = connector;
-        this.migrationPromises = {};
-        this.migrationStatus = {};
-        this.initStatus = false;
+    constructor(tableName = 'migrations', poolConfig) {
+        this.tableName = tableName;
+        this.poolConfig = poolConfig;
     }
-    async init() {
-        if (this.initStatus === true)
-            return Promise.resolve();
-        if (this.initStatus === false) {
-            return this.initStatus = new Promise(async (resolve) => {
-                const migrationTableExists = await this.connector.tableExists();
-                if (!migrationTableExists)
-                    await this.connector.createTable();
-                const migrationKeys = await this.connector.getMigrationKeys();
-                for (const key of migrationKeys) {
-                    this.migrationStatus[key] = true;
-                    this.migrationPromises[key] = Promise.resolve();
-                    this.lastMigration = key;
-                }
-                resolve();
-            });
+    connect() {
+        return new Connector(this.tableName, this.poolConfig);
+    }
+    async createDatabase() {
+        const connector = this.connect();
+        try {
+            await connector.createDatabase();
+        }
+        finally {
+            await connector.disconnect();
+        }
+    }
+    async dropDatabase() {
+        const connector = this.connect();
+        try {
+            await connector.dropDatabase();
+        }
+        finally {
+            await connector.disconnect();
+        }
+    }
+    async createTable() {
+        const connector = this.connect();
+        try {
+            await connector.createTable();
+        }
+        finally {
+            await connector.disconnect();
+        }
+    }
+    async tableExists() {
+        const connector = this.connect();
+        let result = false;
+        try {
+            result = await connector.tableExists();
+        }
+        finally {
+            await connector.disconnect();
+            return result;
+        }
+    }
+    async dropTable() {
+        const connector = this.connect();
+        try {
+            await connector.dropTable();
+        }
+        finally {
+            await connector.disconnect();
         }
     }
     async migrate(migrations) {
-        await this.init();
-        const promises = [];
-        let migrationCount = migrations.length;
-        const migrationKeyLookup = {};
-        migrations.map(migration => migrationKeyLookup[migration.key] = true);
-        while (migrationCount > 0) {
-            let index = 0;
-            while (index < migrations.length) {
-                const migration = migrations[index];
-                let processMigration = true;
-                if (this.migrationStatus[migration.key]) {
-                    migrations.splice(index, 1);
-                    continue;
-                }
-                if (migration.parent !== undefined) {
-                    for (const key of migration.parent) {
-                        if (!this.migrationPromises[key]) {
-                            if (!migrationKeyLookup[key]) {
-                                throw `Parent «${key}» not found for migration «${migrations[0].key}».`;
-                            }
-                            processMigration = false;
-                            break;
-                        }
-                    }
-                }
-                if (processMigration) {
-                    promises.push(this.up(migration));
-                    migrations.splice(index, 1);
-                }
-                else {
-                    index += 1;
-                }
-            }
-            if (migrationCount === migrations.length) {
-                throw `
-          Migrations build a infinite loop.
-          Unable to add keys «${migrations.map(migration => migration.key).join('», «')}».
-        `;
-            }
-            migrationCount = migrations.length;
+        const connector = this.connect();
+        try {
+            await connector.migrate(migrations);
         }
-        await Promise.all(promises);
+        finally {
+            await connector.disconnect();
+        }
     }
     async up(migration) {
-        const parent = migration.parent || (this.lastMigration ? [this.lastMigration] : []);
-        const parentPromises = parent.map((key) => {
-            const process = this.migrationPromises[key];
-            if (!process)
-                throw `Parent Migration «${key}» missing.`;
-            return process;
-        });
-        this.lastMigration = migration.key;
-        return this.migrationPromises[migration.key] = new Promise(async (resolve, reject) => {
-            await this.init();
-            await Promise.all(parentPromises);
-            try {
-                await this.connector.beginTransaction();
-                await this.connector.up(migration);
-                await this.connector.insertMigrationKey(migration.key);
-                await this.connector.endTransaction();
-                this.migrationStatus[migration.key] = true;
-            }
-            catch (error) {
-                await this.connector.rollbackTransaction();
-                return reject(error);
-            }
-            resolve();
-        });
+        const connector = this.connect();
+        try {
+            await connector.up(migration);
+        }
+        finally {
+            await connector.disconnect();
+        }
     }
     async down(migration) {
-        await this.init();
+        const connector = this.connect();
         try {
-            await this.connector.beginTransaction();
-            await this.connector.down(migration);
-            await this.connector.deleteMigrationKey(migration.key);
-            await this.connector.endTransaction();
-            delete this.migrationPromises[migration.key];
-            delete this.migrationStatus[migration.key];
+            await connector.down(migration);
         }
-        catch (error) {
-            await this.connector.rollbackTransaction();
-            throw error;
+        finally {
+            await connector.disconnect();
         }
     }
 }

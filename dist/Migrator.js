@@ -8,121 +8,102 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Connector_1 = require("./Connector");
 class Migrator {
-    constructor(connector) {
-        this.connector = connector;
-        this.migrationPromises = {};
-        this.migrationStatus = {};
-        this.initStatus = false;
+    constructor(tableName = 'migrations', poolConfig) {
+        this.tableName = tableName;
+        this.poolConfig = poolConfig;
     }
-    init() {
+    connect() {
+        return new Connector_1.Connector(this.tableName, this.poolConfig);
+    }
+    createDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.initStatus === true)
-                return Promise.resolve();
-            if (this.initStatus === false) {
-                return this.initStatus = new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-                    const migrationTableExists = yield this.connector.tableExists();
-                    if (!migrationTableExists)
-                        yield this.connector.createTable();
-                    const migrationKeys = yield this.connector.getMigrationKeys();
-                    for (const key of migrationKeys) {
-                        this.migrationStatus[key] = true;
-                        this.migrationPromises[key] = Promise.resolve();
-                        this.lastMigration = key;
-                    }
-                    resolve();
-                }));
+            const connector = this.connect();
+            try {
+                yield connector.createDatabase();
+            }
+            finally {
+                yield connector.disconnect();
+            }
+        });
+    }
+    dropDatabase() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const connector = this.connect();
+            try {
+                yield connector.dropDatabase();
+            }
+            finally {
+                yield connector.disconnect();
+            }
+        });
+    }
+    createTable() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const connector = this.connect();
+            try {
+                yield connector.createTable();
+            }
+            finally {
+                yield connector.disconnect();
+            }
+        });
+    }
+    tableExists() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const connector = this.connect();
+            let result = false;
+            try {
+                result = yield connector.tableExists();
+            }
+            finally {
+                yield connector.disconnect();
+                return result;
+            }
+        });
+    }
+    dropTable() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const connector = this.connect();
+            try {
+                yield connector.dropTable();
+            }
+            finally {
+                yield connector.disconnect();
             }
         });
     }
     migrate(migrations) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.init();
-            const promises = [];
-            let migrationCount = migrations.length;
-            const migrationKeyLookup = {};
-            migrations.map(migration => migrationKeyLookup[migration.key] = true);
-            while (migrationCount > 0) {
-                let index = 0;
-                while (index < migrations.length) {
-                    const migration = migrations[index];
-                    let processMigration = true;
-                    if (this.migrationStatus[migration.key]) {
-                        migrations.splice(index, 1);
-                        continue;
-                    }
-                    if (migration.parent !== undefined) {
-                        for (const key of migration.parent) {
-                            if (!this.migrationPromises[key]) {
-                                if (!migrationKeyLookup[key]) {
-                                    throw `Parent «${key}» not found for migration «${migrations[0].key}».`;
-                                }
-                                processMigration = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (processMigration) {
-                        promises.push(this.up(migration));
-                        migrations.splice(index, 1);
-                    }
-                    else {
-                        index += 1;
-                    }
-                }
-                if (migrationCount === migrations.length) {
-                    throw `
-          Migrations build a infinite loop.
-          Unable to add keys «${migrations.map(migration => migration.key).join('», «')}».
-        `;
-                }
-                migrationCount = migrations.length;
+            const connector = this.connect();
+            try {
+                yield connector.migrate(migrations);
             }
-            yield Promise.all(promises);
+            finally {
+                yield connector.disconnect();
+            }
         });
     }
     up(migration) {
         return __awaiter(this, void 0, void 0, function* () {
-            const parent = migration.parent || (this.lastMigration ? [this.lastMigration] : []);
-            const parentPromises = parent.map((key) => {
-                const process = this.migrationPromises[key];
-                if (!process)
-                    throw `Parent Migration «${key}» missing.`;
-                return process;
-            });
-            this.lastMigration = migration.key;
-            return this.migrationPromises[migration.key] = new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                yield this.init();
-                yield Promise.all(parentPromises);
-                try {
-                    yield this.connector.beginTransaction();
-                    yield this.connector.up(migration);
-                    yield this.connector.insertMigrationKey(migration.key);
-                    yield this.connector.endTransaction();
-                    this.migrationStatus[migration.key] = true;
-                }
-                catch (error) {
-                    yield this.connector.rollbackTransaction();
-                    return reject(error);
-                }
-                resolve();
-            }));
+            const connector = this.connect();
+            try {
+                yield connector.up(migration);
+            }
+            finally {
+                yield connector.disconnect();
+            }
         });
     }
     down(migration) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.init();
+            const connector = this.connect();
             try {
-                yield this.connector.beginTransaction();
-                yield this.connector.down(migration);
-                yield this.connector.deleteMigrationKey(migration.key);
-                yield this.connector.endTransaction();
-                delete this.migrationPromises[migration.key];
-                delete this.migrationStatus[migration.key];
+                yield connector.down(migration);
             }
-            catch (error) {
-                yield this.connector.rollbackTransaction();
-                throw error;
+            finally {
+                yield connector.disconnect();
             }
         });
     }
