@@ -164,7 +164,7 @@ export class CLI {
       }
       throw `Unable to find version «${versionParam}» in folder «${path}»`;
     }
-    throw `Unable to find migration - please provide either version or key`;
+    throw 'Unable to find migration - please provide either version or key';
   }
 
   private getMigrator(tableName?: string) {
@@ -266,7 +266,7 @@ module.exports = {
   create() {
     const name = process.argv[3];
     if (!name || name.length === 0 || name.startsWith('-')) {
-      throw `Value missing for parameter «name»`;
+      throw `Value missing for parameter «${name}»`;
     }
 
     const path = this.migrationsPath;
