@@ -7,7 +7,6 @@ import {
 } from 'fs';
 import { Migration } from './types';
 import { Migrator } from './Migrator';
-import { Connector } from './Connector';
 
 export type Logger = (...params: any[]) => void;
 
@@ -168,7 +167,7 @@ export class CLI {
   }
 
   private getMigrator(tableName?: string) {
-    return new Migrator(new Connector(tableName));
+    return new Migrator(tableName);
   }
 
   private getParam(shortKey: string, longKey: string) {
