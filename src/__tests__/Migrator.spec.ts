@@ -3,10 +3,13 @@ import {
   Migration,
   Migrator,
 } from '..';
+import { PoolConfig } from 'pg';
 
 if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
-const connect = () => new Migrator();
+let tableName: string | undefined;
+let poolConfig: PoolConfig | undefined;
+const connect = () => new Migrator(tableName, poolConfig);
 
 afterEach(async () => {
   return await connect().dropTable();
@@ -21,6 +24,88 @@ afterAll(async () => {
 });
 
 describe('Migrator', () => {
+  describe('#new', () => {
+    const subject = connect;
+
+    it('will set a default tableName', () => {
+      const migrator = subject();
+      expect(migrator.tableName).toBeDefined();
+      expect(typeof migrator.tableName).toBe('string');
+    });
+
+    context('when tableName is passed', {
+      definitions() {
+        tableName = 'test';
+      },
+      tests() {
+        it('will use passed value', () => {
+          expect(subject().tableName).toBe(tableName);
+        });
+      },
+    });
+
+    context('when tableName is empty', {
+      definitions() {
+        tableName = '';
+      },
+      tests() {
+        it('throw error', () => {
+          try {
+            subject();
+          } catch (error) {
+            expect(false).toBeTruthy(); // not expected to reach
+          }
+          expect(true).toBeTruthy();
+        });
+      },
+      reset() {
+        tableName = undefined;
+      },
+    });
+
+    context('when tableName is invalid', {
+      definitions() {
+        tableName = '! !';
+      },
+      tests() {
+        it('throw error', () => {
+          try {
+            subject();
+          } catch (error) {
+            expect(false).toBeTruthy(); // not expected to reach
+          }
+          expect(true).toBeTruthy();
+        });
+      },
+      reset() {
+        tableName = undefined;
+      },
+    });
+
+    context('when poolConfig is not present', {
+      definitions() {
+        poolConfig = undefined;
+      },
+      tests() {
+        it('will set a default', () => {
+          const migrator = subject();
+          expect(migrator.poolConfig).toBeUndefined();
+        });
+      },
+    });
+
+    context('when poolConfig is passed', {
+      definitions() {
+        poolConfig = {};
+      },
+      tests() {
+        it('will use passed value', () => {
+          expect(subject().poolConfig).toBe(poolConfig);
+        });
+      },
+    });
+  });
+
   describe('#migrate', () => {
     let migrations: Migration[] = [];
     const subject = () => connect().migrate(migrations);
