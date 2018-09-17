@@ -44,6 +44,7 @@ export class CLI {
     this.logger('  create             Creates a empty migration with the given name');
     this.logger('  createDatabase     Creates the database if not already existing');
     this.logger('  dropDatabase       Drops the database if already existing');
+    this.logger('  dropTable          Drops the migration table');
     this.logger('  help               Shows this overview');
   }
 
@@ -87,14 +88,21 @@ export class CLI {
   createDatabaseHelp() {
     this.logger('Creates the database if not already existing');
     this.logger('');
-    this.logger('Usage: pg-migrator create_database [paramenters]');
+    this.logger('Usage: pg-migrator createDatabase [paramenters]');
     this.envHelp();
   }
 
   dropDatabaseHelp() {
     this.logger('Drops the database if already existing');
     this.logger('');
-    this.logger('Usage: pg-migrator drop_database [paramenters]');
+    this.logger('Usage: pg-migrator dropDatabase [paramenters]');
+    this.envHelp();
+  }
+
+  dropTableHelp() {
+    this.logger('Drops the migration table');
+    this.logger('');
+    this.logger('Usage: pg-migrator dropTable [paramenters]');
     this.envHelp();
   }
 
@@ -190,48 +198,27 @@ export class CLI {
   }
 
   async up() {
-    const migrator = this.getMigrator();
-    try {
-      await migrator.up(this.migration);
-    } finally {
-      await migrator.connector.disconnect();
-    }
+    await this.getMigrator().up(this.migration);
   }
 
   async down() {
-    const migrator = this.getMigrator();
-    try {
-      await migrator.down(this.migration);
-    } finally {
-      await migrator.connector.disconnect();
-    }
+    await this.getMigrator().down(this.migration);
   }
 
   async migrate() {
-    const migrator = this.getMigrator();
-    try {
-      await migrator.migrate(this.migrations);
-    } finally {
-      await migrator.connector.disconnect();
-    }
+    await this.getMigrator().migrate(this.migrations);
   }
 
   async createDatabase() {
-    const migrator = this.getMigrator();
-    try {
-      await migrator.connector.createDatabase();
-    } finally {
-      await migrator.connector.disconnect();
-    }
+    await this.getMigrator().createDatabase();
   }
 
   async dropDatabase() {
-    const migrator = this.getMigrator();
-    try {
-      await migrator.connector.dropDatabase();
-    } finally {
-      await migrator.connector.disconnect();
-    }
+    await this.getMigrator().dropDatabase();
+  }
+
+  async dropTable() {
+    await this.getMigrator().dropTable();
   }
 
   get newVersion() {
