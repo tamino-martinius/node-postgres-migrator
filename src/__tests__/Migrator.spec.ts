@@ -89,19 +89,25 @@ describe('Migrator', () => {
       tests() {
         it('will set a default', () => {
           const migrator = subject();
-          expect(migrator.poolConfig).toBeUndefined();
+          expect(migrator.poolConfig).toEqual({});
         });
+      },
+      reset() {
+        poolConfig = undefined;
       },
     });
 
     context('when poolConfig is passed', {
       definitions() {
-        poolConfig = {};
+        poolConfig = { min: 1 };
       },
       tests() {
         it('will use passed value', () => {
-          expect(subject().poolConfig).toBe(poolConfig);
+          expect(subject().poolConfig).toEqual(poolConfig);
         });
+      },
+      reset() {
+        poolConfig = undefined;
       },
     });
   });
