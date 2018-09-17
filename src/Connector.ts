@@ -7,6 +7,8 @@ export class Connector {
   private migrationStatus: Dict<boolean> = {};
   private initStatus: boolean | Promise<void> = false;
   private lastMigration: string | undefined;
+  private static number = 0;
+  private number = Connector.number += 1;
 
   constructor(public tableName: string = 'migrations', poolConfig?: PoolConfig) {
     this.pool = new Pool(poolConfig);
@@ -138,41 +140,49 @@ export class Connector {
 
   public async createDatabase() {
     const pool = new Pool({ database: 'postgres' });
-    const result = await pool.query({
-      name: 'migrator--test--database-exists',
-      text: `
-        SELECT 1
-        FROM pg_database
-        WHERE datname = '${process.env.PGDATABASE}'
-      `,
-      values: [],
-    });
-    if (result.rows.length === 0) {
-      await pool.query({
-        name: 'migrator--test--create-database',
-        text: `CREATE DATABASE "${process.env.PGDATABASE}"`,
+    try {
+      const result = await pool.query({
+        name: 'migrator--test--database-exists',
+        text: `
+          SELECT 1
+          FROM pg_database
+          WHERE datname = '${process.env.PGDATABASE}'
+        `,
         values: [],
       });
+      if (result.rows.length === 0) {
+        await pool.query({
+          name: 'migrator--test--create-database',
+          text: `CREATE DATABASE "${process.env.PGDATABASE}"`,
+          values: [],
+        });
+      }
+    } finally {
+      this.disconnect(pool);
     }
   }
 
   public async dropDatabase() {
     const pool = new Pool({ database: 'postgres' });
-    const result = await pool.query({
-      name: 'migrator--test--database-exists',
-      text: `
-        SELECT 1
-        FROM pg_database
-        WHERE datname = '${process.env.PGDATABASE}'
-      `,
-      values: [],
-    });
-    if (result.rows.length > 0) {
-      await pool.query({
-        name: 'migrator--test--drop-database',
-        text: `DROP DATABASE "${process.env.PGDATABASE}"`,
+    try {
+      const result = await pool.query({
+        name: 'migrator--test--database-exists',
+        text: `
+          SELECT 1
+          FROM pg_database
+          WHERE datname = '${process.env.PGDATABASE}'
+        `,
         values: [],
       });
+      if (result.rows.length > 0) {
+        await pool.query({
+          name: 'migrator--test--drop-database',
+          text: `DROP DATABASE "${process.env.PGDATABASE}"`,
+          values: [],
+        });
+      }
+    } finally {
+      this.disconnect(pool);
     }
   }
 
@@ -269,9 +279,9 @@ export class Connector {
     }
   }
 
-  public async disconnect(): Promise<void> {
-    if (this.pool.totalCount > 0) {
-      await this.pool.end();
+  public async disconnect(pool: Pool = this.pool): Promise<void> {
+    if (pool.totalCount > 0) {
+      await pool.end();
     }
   }
 }
