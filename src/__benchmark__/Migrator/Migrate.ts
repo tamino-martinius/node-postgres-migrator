@@ -5,7 +5,7 @@ export class Migrate extends Benchmark {
   lastIndex = 0;
   migrations: Migration[] = [];
   tableName = `benchmark-${this.id}`;
-  migrator = new Migrator(new Connector(this.tableName, { min: 1, max: 5 }));
+  migrator = new Migrator(this.tableName, { min: 1, max: 5 });
 
   get simulateWork() {
     return new Promise((resolve) => {
@@ -27,12 +27,11 @@ export class Migrate extends Benchmark {
   }
 
   async setup(_: number) {
-    await this.migrator.connector.createTable();
+    await this.migrator.createTable();
   }
 
   async teardown() {
-    await this.migrator.connector.dropTable();
-    await this.migrator.connector.disconnect();
+    await this.migrator.dropTable();
   }
 
   async main() {
