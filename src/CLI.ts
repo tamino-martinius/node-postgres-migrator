@@ -167,7 +167,7 @@ export class CLI {
   }
 
   private getMigrator(tableName?: string) {
-    return new Migrator(tableName);
+    return new Migrator({ tableName: tableName || 'migrations' });
   }
 
   private getParam(shortKey: string, longKey: string) {

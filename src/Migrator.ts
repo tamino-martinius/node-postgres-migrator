@@ -4,11 +4,13 @@ import { Connector } from './Connector';
 
 export class Migrator {
   constructor(public poolConfig?: PoolConfig & { tableName: string }) { }
+  public tableName: string = 'migrations';
 
   private connect() {
-    let tableName = 'migrations';
-    if (this.poolConfig && this.poolConfig.tableName) tableName = this.poolConfig.tableName;
-    return new Connector(tableName, this.poolConfig);
+    if (this.poolConfig && this.poolConfig.tableName) {
+      this.tableName = this.poolConfig.tableName;
+    }
+    return new Connector(this.tableName, this.poolConfig);
   }
 
   public async createDatabase() {

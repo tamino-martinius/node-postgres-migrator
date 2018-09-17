@@ -9,7 +9,7 @@ if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
 let tableName: string | undefined;
 let poolConfig: PoolConfig | undefined;
-const connect = () => new Migrator(tableName, poolConfig);
+const connect = () => new Migrator({ tableName, ...poolConfig });
 
 afterEach(async () => {
   return await connect().dropTable();
