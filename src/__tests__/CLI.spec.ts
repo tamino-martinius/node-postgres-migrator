@@ -148,9 +148,9 @@ describe('CLI', () => {
         },
       });
 
-      context('when just key arguments is present', {
+      context('when just name arguments is present', {
         definitions() {
-          process.argv = ['-k', 'test_migration'];
+          process.argv = ['-n', 'test_migration'];
         },
         tests() {
           it('throws error', async () => {
@@ -164,9 +164,9 @@ describe('CLI', () => {
         },
       });
 
-      context('when key and folder arguments are present', {
+      context('when name and folder arguments are present', {
         definitions() {
-          process.argv = ['-f', resolve(__dirname), '-k', 'test_migration'];
+          process.argv = ['-f', resolve(__dirname), '-n', 'test_migration'];
         },
         tests() {
           it('reads migration from folder', async () => {
@@ -179,9 +179,9 @@ describe('CLI', () => {
         },
       });
 
-      context('when key and folder arguments are present with long notation', {
+      context('when name and folder arguments are present with long notation', {
         definitions() {
-          process.argv = [`--folder=${resolve(__dirname)}`, '--key=test_migration'];
+          process.argv = [`--folder=${resolve(__dirname)}`, '--name=test_migration'];
         },
         tests() {
           it('reads migration from folder', async () => {

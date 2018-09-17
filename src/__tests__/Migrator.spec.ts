@@ -38,7 +38,7 @@ describe('Migrator', () => {
       definitions() {
         migrations = [
           {
-            key: 'test-1',
+            version: 'test-1',
             up: jest.fn(),
             down: jest.fn(),
           },
@@ -55,7 +55,7 @@ describe('Migrator', () => {
           definitions() {
             migrations = [
               {
-                key: 'test-1a',
+                version: 'test-1a',
                 up: jest.fn(),
                 down: jest.fn(),
               },
@@ -68,7 +68,7 @@ describe('Migrator', () => {
               expect(fn).toBeCalled();
               migrations = [
                 {
-                  key: 'test-1b',
+                  version: 'test-1b',
                   up: jest.fn(),
                   down: jest.fn(),
                 },
@@ -78,11 +78,11 @@ describe('Migrator', () => {
               expect(fn).toBeCalled();
             });
 
-            context('when key was already applied', {
+            context('when version was already applied', {
               definitions() {
                 migrations = [
                   {
-                    key: 'test-2a',
+                    version: 'test-2a',
                     up: jest.fn(),
                     down: jest.fn(),
                   },
@@ -95,7 +95,7 @@ describe('Migrator', () => {
                   expect(fn).toBeCalled();
                   migrations = [
                     {
-                      key: 'test-2a',
+                      version: 'test-2a',
                       up: jest.fn(),
                       down: jest.fn(),
                     },
@@ -107,11 +107,11 @@ describe('Migrator', () => {
               },
             });
 
-            context('when parent key was already applied', {
+            context('when parent version was already applied', {
               definitions() {
                 migrations = [
                   {
-                    key: 'test-3a',
+                    version: 'test-3a',
                     up: jest.fn(),
                     down: jest.fn(),
                   },
@@ -125,7 +125,7 @@ describe('Migrator', () => {
                   migrations = [
                     {
                       parent: ['test-3a'],
-                      key: 'test-3b',
+                      version: 'test-3b',
                       up: jest.fn(),
                       down: jest.fn(),
                     },
@@ -146,7 +146,7 @@ describe('Migrator', () => {
         migrations = [
           {
             parent: ['test-0'],
-            key: 'test-1',
+            version: 'test-1',
             up: jest.fn(),
             down: jest.fn(),
           },
@@ -168,7 +168,7 @@ describe('Migrator', () => {
       definitions() {
         migrations = [
           {
-            key: 'test-1',
+            version: 'test-1',
             up: () => { throw 'error'; },
             down: jest.fn(),
           },
@@ -191,13 +191,13 @@ describe('Migrator', () => {
         migrations = [
           {
             parent: ['test-1'],
-            key: 'test-0',
+            version: 'test-0',
             up: jest.fn(),
             down: jest.fn(),
           },
           {
             parent: ['test-0'],
-            key: 'test-1',
+            version: 'test-1',
             up: jest.fn(),
             down: jest.fn(),
           },
@@ -218,7 +218,7 @@ describe('Migrator', () => {
 
   describe('#up', () => {
     let migration: Migration = {
-      key: 'test-1',
+      version: 'test-1',
       up: jest.fn(),
       down: jest.fn(),
     };
@@ -228,7 +228,7 @@ describe('Migrator', () => {
     context('when migration is present', {
       definitions() {
         migration = {
-          key: 'test-up-1',
+          version: 'test-up-1',
           up: jest.fn(),
           down: jest.fn(),
         };
@@ -246,7 +246,7 @@ describe('Migrator', () => {
       definitions() {
         migration = {
           parent: ['test-0'],
-          key: 'test-up-2',
+          version: 'test-up-2',
           up: jest.fn(),
           down: jest.fn(),
         };
@@ -266,7 +266,7 @@ describe('Migrator', () => {
     context('when migration throws error', {
       definitions() {
         migration = {
-          key: 'test-up-3',
+          version: 'test-up-3',
           up: () => { throw 'error'; },
           down: jest.fn(),
         };
@@ -286,7 +286,7 @@ describe('Migrator', () => {
 
   describe('#down', () => {
     let migration: Migration = {
-      key: 'test-1',
+      version: 'test-1',
       up: jest.fn(),
       down: jest.fn(),
     };
@@ -296,7 +296,7 @@ describe('Migrator', () => {
     context('when migration is present', {
       definitions() {
         migration = {
-          key: 'test-down-1',
+          version: 'test-down-1',
           up: jest.fn(),
           down: jest.fn(),
         };
@@ -314,7 +314,7 @@ describe('Migrator', () => {
       definitions() {
         migration = {
           parent: ['test-0'],
-          key: 'test-down-2',
+          version: 'test-down-2',
           up: jest.fn(),
           down: jest.fn(),
         };
@@ -331,7 +331,7 @@ describe('Migrator', () => {
     context('when migration throws error', {
       definitions() {
         migration = {
-          key: 'test-down-3',
+          version: 'test-down-3',
           up: jest.fn(),
           down: () => { throw 'error'; },
         };

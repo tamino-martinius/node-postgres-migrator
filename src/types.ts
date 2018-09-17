@@ -5,7 +5,7 @@ export interface Dict<T> {
 }
 
 export interface Migration {
-  key: string;
+  version: string;
   up(client: Pool): Promise<any>;
   down(client: Pool): Promise<any>;
   parent?: string[];

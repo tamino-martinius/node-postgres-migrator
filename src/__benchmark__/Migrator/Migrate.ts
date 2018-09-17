@@ -20,7 +20,7 @@ export class Migrate extends Benchmark {
 
   get migration(): Migration {
     return {
-      key: `example-${this.lastIndex += 1}`,
+      version: `example-${this.lastIndex += 1}`,
       up: () => this.simulateWork,
       down: () => this.simulateWork,
     };
