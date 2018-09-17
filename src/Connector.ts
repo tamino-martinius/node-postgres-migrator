@@ -8,7 +8,7 @@ export class Connector {
   private initStatus: boolean | Promise<void> = false;
   private lastMigration: string | undefined;
 
-  constructor(public tableName: string = 'migrations', public poolConfig?: PoolConfig) {
+  constructor(public tableName: string, public poolConfig: PoolConfig | undefined) {
     if (!this.isTableNameValid) throw `Invalid table name «${this.tableName}»`;
   }
 
