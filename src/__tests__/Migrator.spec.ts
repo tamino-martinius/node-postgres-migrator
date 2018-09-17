@@ -13,9 +13,7 @@ afterEach(async () => {
 });
 
 beforeAll(async () => {
-  console.log('0');
   await connect().createDatabase();
-  console.log('00');
 });
 
 afterAll(async () => {
@@ -28,8 +26,6 @@ describe('Migrator', () => {
     const subject = () => connect().migrate(migrations);
 
     it('does not throw error', async () => {
-      console.log('1');
-
       try {
         await subject();
       } catch (error) {

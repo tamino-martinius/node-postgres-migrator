@@ -12,10 +12,8 @@ export class Migrator {
   public async createDatabase() {
     const connector = this.connect();
     try {
-      console.log('createDB');
       await connector.createDatabase();
     } finally {
-      console.log('createDBDiscconnect');
       await connector.disconnect();
     }
   }
