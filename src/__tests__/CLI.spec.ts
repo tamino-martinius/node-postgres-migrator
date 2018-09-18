@@ -284,6 +284,21 @@ describe('CLI', () => {
       },
     });
 
+    context('when arguments are present before name', {
+      definitions() {
+        process.argv = ['-f', resolve(__dirname), '-t', 'js', 'create', name];
+      },
+      tests() {
+        it('creates new migration in test folder with js syntax', async () => {
+          await subject();
+          const newFiles = readdirSync(path).filter(file => !files.includes(file));
+          expect(newFiles.length).toBe(1);
+          expect(newFiles[0].endsWith(`_${name}.js`)).toBe(true);
+          unlinkSync(resolve(__dirname, newFiles[0]));
+        });
+      },
+    });
+
     context('when name arguments is present', {
       definitions() {
         process.argv = ['-f', resolve(__dirname), 'create', name];
