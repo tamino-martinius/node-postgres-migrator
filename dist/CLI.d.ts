@@ -29,7 +29,13 @@ export declare class CLI {
     dropTable(): Promise<void>;
     readonly newVersion: string;
     readonly nodeVersion: number;
+    readonly es2015: string;
+    readonly es2017: string;
+    readonly ts: string;
+    readonly js: string;
     readonly template: string;
+    readonly extension: "js" | "ts";
+    readonly type: "js" | "es2015" | "es2017" | "ts";
     create(): void;
 }
 export default CLI;

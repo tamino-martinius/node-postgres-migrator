@@ -89,6 +89,9 @@ export class CLI {
         this.logger('Usage: pg-migrator create <name> [paramenters]');
         this.logger('  -f, --folder       Folder which contains the migrations');
         this.logger('                     (default: migrations)');
+        this.logger('  -t, --type         Pass the type of migration template which should be used');
+        this.logger('                     Valid options are: js, es2015, es2017, ts');
+        this.logger('                     (default: js)');
         this.envHelp();
     }
     createFolder(path) {
@@ -196,7 +199,7 @@ export class CLI {
         const version = Number(((process.version).match(/^v(\d+\.\d+)/) || ['', '0'])[1]);
         return this.cachedNodeVersion = version;
     }
-    get template() {
+    get es2015() {
         return `const pg = require('pg');
 
 /**
@@ -209,9 +212,9 @@ module.exports = {
    * @param {pg.Pool} client
    * @returns {Promise<void>}
    */
-  ${this.nodeVersion > 7 ? 'async ' : ''}up(client) {
+  up(client) {
 
-    // ${this.nodeVersion > 7 ? 'Code for Migration' : 'Return Promise for Migration'}
+    // Return Promise for Migration
 
   },
   /**
@@ -219,13 +222,95 @@ module.exports = {
    * @param {pg.Pool} client
    * @returns {Promise<void>}
    */
-  ${this.nodeVersion > 7 ? 'async ' : ''}down(client) {
+  down(client) {
 
-    // ${this.nodeVersion > 7 ? 'Code for Rollback' : 'Return Promise for Rollback'}
+    // Return Promise for Rollback
 
   },
 }
 `;
+    }
+    get es2017() {
+        return `const pg = require('pg');
+
+/**
+ * Description of the Migration
+ */
+module.exports = {
+  parent: undefined,
+  /**
+   * Method to apply migration
+   * @param {pg.Pool} client
+   * @returns {Promise<void>}
+   */
+  async up(client) {
+
+    // Code for Migration
+
+  },
+  /**
+   * Method to rollback migration
+   * @param {pg.Pool} client
+   * @returns {Promise<void>}
+   */
+  async down(client) {
+
+    // Code for Rollback
+
+  },
+}
+`;
+    }
+    get ts() {
+        return `import { Pool } from 'pg';
+
+/*
+  * Description of the Migration
+  */
+
+// Migration depends on these versions
+export const parent: string[] | undefined = undefined;
+
+// Method to apply migration
+export const up = async (client: Pool) => {
+
+  // Code for Migration
+
+};
+
+// Method to rollback migration
+export const down = async (client: Pool) => {
+
+  // Code for Rollback
+
+};
+`;
+    }
+    get js() {
+        return this.nodeVersion > 7 ? this.es2017 : this.es2015;
+    }
+    get template() {
+        return this[this.type];
+    }
+    get extension() {
+        return this.type === 'ts' ? 'ts' : 'js';
+    }
+    get type() {
+        const typeParam = this.getParam('t', 'type');
+        let type = 'js';
+        if (typeParam) {
+            if (typeParam === 'js' ||
+                typeParam === 'es2015' ||
+                typeParam === 'es2017' ||
+                typeParam === 'ts') {
+                type = typeParam;
+            }
+            else {
+                throw `Invalid parameter value for type «${typeParam}».
+Valid options are 'js', 'es2015', 'es2017, 'ts'`;
+            }
+        }
+        return type;
     }
     create() {
         const name = process.argv[3];
@@ -233,7 +318,7 @@ module.exports = {
             throw `Value missing for parameter «${name}»`;
         }
         const path = this.migrationsPath;
-        writeFileSync(resolve(path, `${this.newVersion}_${name}.js`), this.template);
+        writeFileSync(resolve(path, `${this.newVersion}_${name}.${this.extension}`), this.template);
     }
 }
 export default CLI;
