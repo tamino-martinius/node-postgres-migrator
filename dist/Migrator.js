@@ -10,9 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const Connector_1 = require("./Connector");
 class Migrator {
-    constructor(tableName = 'migrations', poolConfig) {
-        this.tableName = tableName;
-        this.poolConfig = poolConfig;
+    constructor(poolConfig) {
+        this.tableName = 'migrations';
+        if (poolConfig) {
+            if (poolConfig.tableName) {
+                this.tableName = poolConfig.tableName;
+            }
+            delete poolConfig.tableName;
+            this.poolConfig = poolConfig;
+        }
     }
     connect() {
         return new Connector_1.Connector(this.tableName, this.poolConfig);

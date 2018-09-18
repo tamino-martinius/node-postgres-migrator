@@ -59,8 +59,8 @@ class CLI {
         this.logger('Options:');
         this.logger('  -f, --folder       Folder which contains the migrations');
         this.logger('                     (default: migrations)');
-        this.logger('  -k, --key          Key of the migration');
-        this.logger('  -v, --version      Version of the migration (first part of key)');
+        this.logger('  -n, --name         Full filename without extension');
+        this.logger('  -v, --version      Version of the migration (first part of filename)');
         this.envHelp();
     }
     downHelp() {
@@ -71,8 +71,8 @@ class CLI {
         this.logger('Options:');
         this.logger('  -f, --folder       Folder which contains the migrations');
         this.logger('                     (default: migrations)');
-        this.logger('  -k, --key          Key of the migration');
-        this.logger('  -v, --version      Version of the migration (first part of key)');
+        this.logger('  -n, --name         Full filename without extension');
+        this.logger('  -v, --version      Version of the migration (first part of filename)');
         this.envHelp();
     }
     createDatabaseHelp() {
@@ -114,43 +114,43 @@ class CLI {
         this.createFolder(path);
         return path;
     }
-    get migrationKeys() {
+    get migrationNames() {
         const path = this.migrationsPath;
         const files = fs_1.readdirSync(path);
         this.logger(this.migrationsPath);
         const jsFiles = files.filter(file => file.endsWith('.js'));
         return jsFiles.map(file => path_1.basename(file, '.js'));
     }
-    readMigration(key) {
+    readMigration(name) {
         const path = this.migrationsPath;
-        return Object.assign({ key }, require(`${path}/${key}`));
+        return Object.assign({ version: name.split(/-_/) }, require(`${path}/${name}`));
     }
     get migrations() {
-        return this.migrationKeys.map(key => this.readMigration(key));
+        return this.migrationNames.map(name => this.readMigration(name));
     }
     get migration() {
         const path = this.migrationsPath;
-        const keys = this.migrationKeys;
-        const keyParam = this.getParam('k', 'key');
+        const names = this.migrationNames;
+        const nameParam = this.getParam('n', 'name');
         const versionParam = this.getParam('v', 'version');
-        if (keyParam && keyParam.length > 0) {
-            if (keys.indexOf(keyParam) < 0) {
-                throw `Unable to find key «${keyParam}» in folder «${path}»`;
+        if (nameParam && nameParam.length > 0) {
+            if (names.indexOf(nameParam) < 0) {
+                throw `Unable to find file «${nameParam}» in folder «${path}»`;
             }
-            return this.readMigration(keyParam);
+            return this.readMigration(nameParam);
         }
         if (versionParam && versionParam.length > 0) {
-            for (const key of keys) {
-                if (key.startsWith(`${versionParam}_`) || key.startsWith(`${versionParam}-`)) {
-                    return this.readMigration(key);
+            for (const name of names) {
+                if (name.startsWith(`${versionParam}_`) || name.startsWith(`${versionParam}-`)) {
+                    return this.readMigration(name);
                 }
             }
             throw `Unable to find version «${versionParam}» in folder «${path}»`;
         }
-        throw 'Unable to find migration - please provide either version or key';
+        throw 'Unable to find migration - please provide either version or name';
     }
     getMigrator(tableName) {
-        return new Migrator_1.Migrator(tableName);
+        return new Migrator_1.Migrator({ tableName: tableName || 'migrations' });
     }
     getParam(shortKey, longKey) {
         const shortParam = `-${shortKey}`;

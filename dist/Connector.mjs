@@ -20,7 +20,7 @@ export class Connector {
     async createIndex() {
         await this.pool.query({
             name: 'migrator--create-idnex',
-            text: `CREATE UNIQUE INDEX "${this.tableName}__key" ON "${this.tableName}" ("key");`,
+            text: `CREATE UNIQUE INDEX "${this.tableName}__version" ON "${this.tableName}" ("version");`,
             values: [],
         });
     }
@@ -30,7 +30,7 @@ export class Connector {
             text: `
         CREATE TABLE "${this.tableName}" (
           "id" SERIAL NOT NULL,
-          "key" character varying NOT NULL,
+          "version" character varying NOT NULL,
           "timestamp" timestamp NOT NULL,
           PRIMARY KEY ("id")
         )
@@ -42,37 +42,37 @@ export class Connector {
     async dropIndex() {
         await this.pool.query({
             name: 'migrator--drop-index',
-            text: `DROP INDEX IF EXISTS "${this.tableName}__key"`,
+            text: `DROP INDEX IF EXISTS "${this.tableName}__version"`,
             values: [],
         });
     }
-    async getMigrationKeys() {
+    async getMigrationVersions() {
         const result = await this.pool.query({
-            name: 'migrator--get-keys',
-            text: `SELECT key FROM "${this.tableName}"`,
+            name: 'migrator--get-versions',
+            text: `SELECT version FROM "${this.tableName}"`,
             values: [],
         });
-        return result.rows.map(row => row.key);
+        return result.rows.map(row => row.version);
     }
-    async insertMigrationKey(key) {
+    async insertMigrationVersion(version) {
         await this.pool.query({
-            name: 'migrator--insert-key',
+            name: 'migrator--insert-version',
             text: `
         INSERT INTO
-        "${this.tableName}"("key", "timestamp")
+        "${this.tableName}"("version", "timestamp")
         VALUES($1, current_timestamp)
       `,
-            values: [key],
+            values: [version],
         });
     }
-    async deleteMigrationKey(key) {
+    async deleteMigrationVersion(version) {
         await this.pool.query({
-            name: 'migrator--delete-key',
+            name: 'migrator--delete-version',
             text: `
         DELETE FROM "${this.tableName}"
-        WHERE key = $1
+        WHERE version = $1
       `,
-            values: [key],
+            values: [version],
         });
     }
     async beginTransaction() {
@@ -104,11 +104,11 @@ export class Connector {
                 const migrationTableExists = await this.tableExists();
                 if (!migrationTableExists)
                     await this.createTable();
-                const migrationKeys = await this.getMigrationKeys();
-                for (const key of migrationKeys) {
-                    this.migrationStatus[key] = true;
-                    this.migrationPromises[key] = Promise.resolve();
-                    this.lastMigration = key;
+                const migrationVersions = await this.getMigrationVersions();
+                for (const version of migrationVersions) {
+                    this.migrationStatus[version] = true;
+                    this.migrationPromises[version] = Promise.resolve();
+                    this.lastMigration = version;
                 }
                 resolve();
             });
@@ -186,22 +186,22 @@ export class Connector {
         await this.init();
         const promises = [];
         let migrationCount = migrations.length;
-        const migrationKeyLookup = {};
-        migrations.map(migration => migrationKeyLookup[migration.key] = true);
+        const migrationVersionLookup = {};
+        migrations.map(migration => migrationVersionLookup[migration.version] = true);
         while (migrationCount > 0) {
             let index = 0;
             while (index < migrations.length) {
                 const migration = migrations[index];
                 let processMigration = true;
-                if (this.migrationStatus[migration.key]) {
+                if (this.migrationStatus[migration.version]) {
                     migrations.splice(index, 1);
                     continue;
                 }
                 if (migration.parent !== undefined) {
-                    for (const key of migration.parent) {
-                        if (!this.migrationPromises[key]) {
-                            if (!migrationKeyLookup[key]) {
-                                throw `Parent «${key}» not found for migration «${migrations[0].key}».`;
+                    for (const version of migration.parent) {
+                        if (!this.migrationPromises[version]) {
+                            if (!migrationVersionLookup[version]) {
+                                throw `Parent «${version}» not found for migration «${migrations[0].version}».`;
                             }
                             processMigration = false;
                             break;
@@ -219,7 +219,7 @@ export class Connector {
             if (migrationCount === migrations.length) {
                 throw `
           Migrations build a infinite loop.
-          Unable to add keys «${migrations.map(migration => migration.key).join('», «')}».
+          Unable to add versions «${migrations.map(migration => migration.version).join('», «')}».
         `;
             }
             migrationCount = migrations.length;
@@ -228,22 +228,22 @@ export class Connector {
     }
     async up(migration) {
         const parent = migration.parent || (this.lastMigration ? [this.lastMigration] : []);
-        const parentPromises = parent.map((key) => {
-            const process = this.migrationPromises[key];
+        const parentPromises = parent.map((version) => {
+            const process = this.migrationPromises[version];
             if (!process)
-                throw `Parent Migration «${key}» missing.`;
+                throw `Parent Migration «${version}» missing.`;
             return process;
         });
-        this.lastMigration = migration.key;
-        return this.migrationPromises[migration.key] = new Promise(async (resolve, reject) => {
+        this.lastMigration = migration.version;
+        return this.migrationPromises[migration.version] = new Promise(async (resolve, reject) => {
             await this.init();
             await Promise.all(parentPromises);
             try {
                 await this.beginTransaction();
                 await migration.up(this.pool);
-                await this.insertMigrationKey(migration.key);
+                await this.insertMigrationVersion(migration.version);
                 await this.endTransaction();
-                this.migrationStatus[migration.key] = true;
+                this.migrationStatus[migration.version] = true;
             }
             catch (error) {
                 await this.rollbackTransaction();
@@ -257,10 +257,10 @@ export class Connector {
         try {
             await this.beginTransaction();
             await migration.down(this.pool);
-            await this.deleteMigrationKey(migration.key);
+            await this.deleteMigrationVersion(migration.version);
             await this.endTransaction();
-            delete this.migrationPromises[migration.key];
-            delete this.migrationStatus[migration.key];
+            delete this.migrationPromises[migration.version];
+            delete this.migrationStatus[migration.version];
         }
         catch (error) {
             await this.rollbackTransaction();

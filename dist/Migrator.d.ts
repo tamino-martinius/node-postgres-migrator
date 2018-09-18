@@ -2,8 +2,10 @@ import { Migration } from './types';
 import { PoolConfig } from 'pg';
 export declare class Migrator {
     tableName: string;
-    poolConfig?: PoolConfig | undefined;
-    constructor(tableName?: string, poolConfig?: PoolConfig | undefined);
+    poolConfig: PoolConfig | undefined;
+    constructor(poolConfig?: PoolConfig & {
+        tableName: string;
+    });
     private connect;
     createDatabase(): Promise<void>;
     dropDatabase(): Promise<void>;

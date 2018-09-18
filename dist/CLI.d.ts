@@ -15,7 +15,7 @@ export declare class CLI {
     createHelp(): void;
     private createFolder;
     private readonly migrationsPath;
-    private readonly migrationKeys;
+    private readonly migrationNames;
     private readMigration;
     private readonly migrations;
     private readonly migration;

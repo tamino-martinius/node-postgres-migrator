@@ -14,9 +14,9 @@ export declare class Connector {
     private createIndex;
     createTable(): Promise<void>;
     private dropIndex;
-    private getMigrationKeys;
-    private insertMigrationKey;
-    private deleteMigrationKey;
+    private getMigrationVersions;
+    private insertMigrationVersion;
+    private deleteMigrationVersion;
     private beginTransaction;
     private endTransaction;
     private rollbackTransaction;

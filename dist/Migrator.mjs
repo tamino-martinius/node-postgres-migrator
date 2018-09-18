@@ -1,8 +1,14 @@
 import { Connector } from './Connector';
 export class Migrator {
-    constructor(tableName = 'migrations', poolConfig) {
-        this.tableName = tableName;
-        this.poolConfig = poolConfig;
+    constructor(poolConfig) {
+        this.tableName = 'migrations';
+        if (poolConfig) {
+            if (poolConfig.tableName) {
+                this.tableName = poolConfig.tableName;
+            }
+            delete poolConfig.tableName;
+            this.poolConfig = poolConfig;
+        }
     }
     connect() {
         return new Connector(this.tableName, this.poolConfig);
