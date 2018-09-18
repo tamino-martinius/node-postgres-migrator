@@ -264,6 +264,9 @@ describe('CLI', () => {
 
   describe('#create', () => {
     const subject = () => connect().create();
+    const path = resolve(__dirname);
+    const files = readdirSync(path);
+    const name = 'test';
 
     context('when name argument is not present', {
       definitions() {
@@ -283,52 +286,94 @@ describe('CLI', () => {
 
     context('when name arguments is present', {
       definitions() {
-        process.argv = ['-f', resolve(__dirname), 'create', 'test'];
+        process.argv = ['-f', resolve(__dirname), 'create', name];
       },
       tests() {
         it('creates new migration in test folder', async () => {
-          const files = readdirSync(resolve(__dirname));
           await subject();
-          const newFiles = readdirSync(resolve(__dirname)).filter(file => !files.includes(file));
+          const newFiles = readdirSync(path).filter(file => !files.includes(file));
           expect(newFiles.length).toBe(1);
           unlinkSync(resolve(__dirname, newFiles[0]));
+        });
+
+        context('when type arguments is js', {
+          definitions() {
+            process.argv.push('--type=js');
+          },
+          tests() {
+            it('creates new migration in test folder with js syntax', async () => {
+              await subject();
+              const newFiles = readdirSync(path).filter(file => !files.includes(file));
+              expect(newFiles.length).toBe(1);
+              expect(newFiles[0].endsWith(`_${name}.js`)).toBe(true);
+              unlinkSync(resolve(__dirname, newFiles[0]));
+            });
+          },
+        });
+
+        context('when type arguments is es2015', {
+          definitions() {
+            process.argv.push('--type=es2015');
+          },
+          tests() {
+            it('creates new migration in test folder with es6 syntax', async () => {
+              await subject();
+              const newFiles = readdirSync(path).filter(file => !files.includes(file));
+              expect(newFiles.length).toBe(1);
+              expect(newFiles[0].endsWith(`_${name}.js`)).toBe(true);
+              unlinkSync(resolve(__dirname, newFiles[0]));
+            });
+          },
+        });
+
+        context('when type arguments is es2017', {
+          definitions() {
+            process.argv.push('--type=es2017');
+          },
+          tests() {
+            it('creates new migration in test folder with es7 syntax', async () => {
+              await subject();
+              const newFiles = readdirSync(path).filter(file => !files.includes(file));
+              expect(newFiles.length).toBe(1);
+              expect(newFiles[0].endsWith(`_${name}.js`)).toBe(true);
+              unlinkSync(resolve(__dirname, newFiles[0]));
+            });
+          },
+        });
+
+        context('when type arguments is ts', {
+          definitions() {
+            process.argv.push('--type=ts');
+          },
+          tests() {
+            it('creates new migration in test folder with ts syntax', async () => {
+              await subject();
+              const newFiles = readdirSync(path).filter(file => !files.includes(file));
+              expect(newFiles.length).toBe(1);
+              expect(newFiles[0].endsWith(`_${name}.ts`)).toBe(true);
+              unlinkSync(resolve(__dirname, newFiles[0]));
+            });
+          },
+        });
+
+        context('when type arguments is invalid', {
+          definitions() {
+            process.argv.push('--type=fail');
+          },
+          tests() {
+            it('throws error', async () => {
+              try {
+                await subject();
+              } catch (error) {
+                const newFiles = readdirSync(path).filter(file => !files.includes(file));
+                expect(newFiles.length).toBe(0);
+                return expect(error).toBeDefined();
+              }
+              expect(false).toBeTruthy(); // not expected to reach
+            });
+          },
         });
       },
     });
   });
-
-  if (connect().nodeVersion > 7) {
-    const version = process.version;
-    describe('#template', () => {
-      const subject = () => connect().template;
-
-      context('when version allows async/await', {
-        definitions() {
-          Object.defineProperty(process, 'version', { value: 'v8.0.0' });
-        },
-        reset() {
-          Object.defineProperty(process, 'version', { value: version });
-        },
-        tests() {
-          it('uses async', async () => {
-            expect(await subject()).toContain('async');
-          });
-        },
-      });
-
-      context('when version does not allow async/await', {
-        definitions() {
-          Object.defineProperty(process, 'version', { value: 'v6.0.0' });
-        },
-        reset() {
-          Object.defineProperty(process, 'version', { value: version });
-        },
-        tests() {
-          it('does not use async', async () => {
-            expect(await subject()).not.toContain('async');
-          });
-        },
-      });
-    });
-  }
 });
