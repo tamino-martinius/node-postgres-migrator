@@ -36,6 +36,7 @@ export declare class CLI {
     readonly template: string;
     readonly extension: "js" | "ts";
     readonly type: "js" | "es2015" | "es2017" | "ts";
+    readonly arguments: string[];
     create(): void;
 }
 export default CLI;

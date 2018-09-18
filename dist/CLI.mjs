@@ -312,8 +312,24 @@ Valid options are 'js', 'es2015', 'es2017, 'ts'`;
         }
         return type;
     }
+    get arguments() {
+        const args = process.argv.slice(2);
+        let index = 0;
+        while (index < args.length) {
+            if (args[index].startsWith('--')) {
+                args.splice(index, 1);
+            }
+            else if (args[index].startsWith('-')) {
+                args.splice(index, 2);
+            }
+            else {
+                index += 1;
+            }
+        }
+        return args;
+    }
     create() {
-        const name = process.argv[3];
+        const name = this.arguments[1];
         if (!name || name.length === 0 || name.startsWith('-')) {
             throw `Value missing for parameter «${name}»`;
         }
