@@ -7,28 +7,14 @@ Migrations for [Postgres](https://www.npmjs.com/package/pg).
 
 ## Whats different in this package compared to most others?
 
-- This package has 0 dependencies (just postgres itself as peer dependency)
+- This package has 0 dependencies  - just postgres (pg) itself as peer dependency
 - Support of parallel migrations when the dependent migrations are defined
 - Ships with TypeScript types, commonJs (.js) and module exports (.mjs)
-
-## Status
-
-WIP - This package is currently in development with the first alpha released.
-
-- [x] Up
-- [x] Down
-- [x] Migrate
-- [x] Transactions
-- [x] Single Rollback
-- [ ] Cascading Rollback
-- [x] CLI
-- [x] API
-- [ ] Documentation
-- [x] Benchmark
+- Can be called by CLI or by programmatic access
 
 ## CLI
 
-### Getting Help**
+### Getting Help
 
 `pg-migrator help`
 
@@ -65,7 +51,8 @@ You can pass a different folder with the `-f` or `--folder` parameter.
 
 ### Migrate
 
-Applies all pending migrations.
+Applies all pending migrations. The migrations will be applied in the order of the
+version numbers ascending.
 
 `pg-migrator migrate`
 
@@ -88,6 +75,118 @@ Tries to create or drop the database.
 Drops the migration table from the database.
 
 `pg-migrator dropTable`
+
+## Programmatic Access
+
+### Migration
+
+A migration is an object with the keys `version`, `parent`, `up` and `down`.
+The `version` is a string which identifies the migration. The migrator saves these
+in a separate table to check if an migration is already applied.
+
+The methods `up` and `down` are async methods with the migration logic.
+Both need to be present, but can be empty if not needed.
+`up` contains the logic to apply the migration while `down` contains the logic
+to undo the changed of the migration.
+
+When `up` method creates a new table the method `down` should drop the table.
+
+Migrations will be applied in the order as they are passed. Each migration will
+wait until the previous is done, except you add the `parent` attribute.
+
+`parent` is a array of version strings. The migrator will wait for all versions
+named there to be finished. But once all dependent migrations are done the migration
+will run instantly parallel to other migrations where all dependent migrations are
+applied. The migration will be applied instantly when `parent` is an empty array.
+
+~~~ts
+const migration = [
+  version: '201812312359',
+  async up(client) {
+    // ...
+  },
+  async down(client) {
+    // ...
+  },
+]
+~~~
+
+### Create Migrator
+
+The Migrator creates a table
+
+~~~ts
+// constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
+const migrator = new Migrator();
+
+// migrate(migrations: Migration[]);
+migrator.migrate([
+  migration1,
+  migration2,
+  //...
+]);
+~~~
+
+### Migrate
+
+Pass an array of migrations and the migrator will skip all migrations which were already applied.
+Pending migrations will be applied in parallel - if possible - depending on the dependent migrations.
+
+~~~ts
+// constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
+const migrator = new Migrator();
+
+// migrate(migrations: Migration[]);
+migrator.migrate([
+  migration1,
+  migration2,
+  //...
+]);
+~~~
+
+### Up / Down
+
+Pass an single migration and the will apply or undo the migration depending on
+the current status of the migration.
+
+~~~ts
+// constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
+const migrator = new Migrator();
+
+// up(migration: Migration);
+// down(migration: Migration);
+migrator.up(migration);
+migrator.down(migration);
+~~~
+
+### Create / Drop Database
+
+The migrator also supports to create or drop a new database. The command will check
+if the database is already existing and skip creation if database already exists.
+On the other hand the drop of the database will be skipped when database is not existing.
+
+~~~ts
+// constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
+const migrator = new Migrator();
+
+// createDatabase();
+// dropDatabase();
+migrator.createDatabase();
+migrator.dropDatabase();
+~~~
+
+### Drop Table
+
+Once a migration is applied the migrator will create a table to save the applied migrations.
+This table can be dropped with the dropTable command.
+~~~ts
+// constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
+const migrator = new Migrator();
+
+// dropTable();
+migrator.dropTable();
+~~~
+
 ## Changelog
 
 See [history](HISTORY.md) for more details.
