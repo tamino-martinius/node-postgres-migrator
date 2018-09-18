@@ -287,8 +287,8 @@ module.exports = {
         return `import { Pool } from 'pg';
 
 /*
-  * Description of the Migration
-  */
+ * Description of the Migration
+ */
 
 // Migration depends on these versions
 export const parent: string[] | undefined = undefined;
