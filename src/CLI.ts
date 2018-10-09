@@ -140,7 +140,7 @@ export class CLI {
 
   private readMigration(name: string) {
     const path = this.migrationsPath;
-    return { version: name.split(/-_/), ...require(`${path}/${name}`) };
+    return { version: name.split(/[-_]/)[0], ...require(`${path}/${name}`) };
   }
 
   private get migrations(): Migration[] {
