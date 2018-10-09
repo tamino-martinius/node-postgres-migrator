@@ -126,7 +126,7 @@ class CLI {
     }
     readMigration(name) {
         const path = this.migrationsPath;
-        return Object.assign({ version: name.split(/-_/) }, require(`${path}/${name}`));
+        return Object.assign({ version: name.split(/[-_]/)[0] }, require(`${path}/${name}`));
     }
     get migrations() {
         return this.migrationNames.map(name => this.readMigration(name));
