@@ -116,7 +116,7 @@ export class Migrator {
     }
     static readMigrationFromPath(path, fileName) {
         const version = fileName.split(/[-_]/)[0];
-        const name = fileName.substr(fileName.length + 1);
+        const name = fileName.substr(version.length + 1);
         return { version, name, ...require(`${path}/${fileName}`) };
     }
     static getMigrationsFromPath(path) {
