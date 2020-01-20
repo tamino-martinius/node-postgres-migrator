@@ -30,55 +30,55 @@ class Connector {
     }
     createIndex() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.sql `
+            yield this.sql.unsafe(`
       CREATE UNIQUE INDEX "${this.tableName}__version"
       ON "${this.tableName}" ("version");
-    `;
+    `);
         });
     }
     createTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.sql `
+            yield this.sql.unsafe(`
       CREATE TABLE "${this.tableName}" (
         "id" SERIAL NOT NULL,
         "version" character varying NOT NULL,
         "timestamp" timestamp NOT NULL,
         PRIMARY KEY ("id")
       )
-    `;
+    `);
             yield this.createIndex();
         });
     }
     dropIndex() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.sql `
+            yield this.sql.unsafe(`
       DROP INDEX IF EXISTS "${this.tableName}__version"
-    `;
+    `);
         });
     }
     getMigrationVersions() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.sql `
+            const result = yield this.sql.unsafe(`
       SELECT version FROM "${this.tableName}"
-    `;
+    `);
             return result.map((row) => row.version);
         });
     }
     insertMigrationVersion(sql, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield sql `
+            yield sql.unsafe(`
       INSERT INTO
       "${this.tableName}"("version", "timestamp")
-      VALUES(${version}, current_timestamp)
-    `;
+      VALUES($1, current_timestamp)
+    `, [version]);
         });
     }
     deleteMigrationVersion(sql, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield sql `
+            yield sql.unsafe(`
       DELETE FROM "${this.tableName}"
-      WHERE version = ${version}
-    `;
+      WHERE version = $1
+    `, [version]);
         });
     }
     init() {
@@ -119,10 +119,10 @@ class Connector {
                 const result = yield sql `
         SELECT 1
         FROM pg_database
-        WHERE datname = '${database}'
+        WHERE datname = ${database}
       `;
                 if (result.length === 0) {
-                    yield sql `CREATE DATABASE "${database}"`;
+                    yield sql.unsafe(`CREATE DATABASE ${database}`);
                 }
             }
             finally {
@@ -141,7 +141,7 @@ class Connector {
         WHERE datname = '${database}'
       `;
                 if (result.length > 0) {
-                    yield sql `DROP DATABASE "${database}"`;
+                    yield sql.unsafe(`DROP DATABASE ${database}`);
                 }
             }
             finally {
@@ -152,7 +152,7 @@ class Connector {
     dropTable() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.dropIndex();
-            yield this.sql `DROP TABLE IF EXISTS "${this.tableName}"`;
+            yield this.sql.unsafe(`DROP TABLE IF EXISTS ${this.tableName}`);
         });
     }
     migrate(migrations) {

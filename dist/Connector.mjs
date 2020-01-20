@@ -18,45 +18,45 @@ export class Connector {
         return /[a-z]([a-z0-9_])*/.test(this.tableName);
     }
     async createIndex() {
-        await this.sql `
+        await this.sql.unsafe(`
       CREATE UNIQUE INDEX "${this.tableName}__version"
       ON "${this.tableName}" ("version");
-    `;
+    `);
     }
     async createTable() {
-        await this.sql `
+        await this.sql.unsafe(`
       CREATE TABLE "${this.tableName}" (
         "id" SERIAL NOT NULL,
         "version" character varying NOT NULL,
         "timestamp" timestamp NOT NULL,
         PRIMARY KEY ("id")
       )
-    `;
+    `);
         await this.createIndex();
     }
     async dropIndex() {
-        await this.sql `
+        await this.sql.unsafe(`
       DROP INDEX IF EXISTS "${this.tableName}__version"
-    `;
+    `);
     }
     async getMigrationVersions() {
-        const result = await this.sql `
+        const result = await this.sql.unsafe(`
       SELECT version FROM "${this.tableName}"
-    `;
+    `);
         return result.map((row) => row.version);
     }
     async insertMigrationVersion(sql, version) {
-        await sql `
+        await sql.unsafe(`
       INSERT INTO
       "${this.tableName}"("version", "timestamp")
-      VALUES(${version}, current_timestamp)
-    `;
+      VALUES($1, current_timestamp)
+    `, [version]);
     }
     async deleteMigrationVersion(sql, version) {
-        await sql `
+        await sql.unsafe(`
       DELETE FROM "${this.tableName}"
-      WHERE version = ${version}
-    `;
+      WHERE version = $1
+    `, [version]);
     }
     async init() {
         if (this.initStatus === true)
@@ -94,10 +94,10 @@ export class Connector {
             const result = await sql `
         SELECT 1
         FROM pg_database
-        WHERE datname = '${database}'
+        WHERE datname = ${database}
       `;
             if (result.length === 0) {
-                await sql `CREATE DATABASE "${database}"`;
+                await sql.unsafe(`CREATE DATABASE ${database}`);
             }
         }
         finally {
@@ -117,7 +117,7 @@ export class Connector {
         WHERE datname = '${database}'
       `;
             if (result.length > 0) {
-                await sql `DROP DATABASE "${database}"`;
+                await sql.unsafe(`DROP DATABASE ${database}`);
             }
         }
         finally {
@@ -126,7 +126,7 @@ export class Connector {
     }
     async dropTable() {
         await this.dropIndex();
-        await this.sql `DROP TABLE IF EXISTS "${this.tableName}"`;
+        await this.sql.unsafe(`DROP TABLE IF EXISTS ${this.tableName}`);
     }
     async migrate(migrations) {
         await this.init();
