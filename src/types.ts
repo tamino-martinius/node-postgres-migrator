@@ -1,12 +1,10 @@
-import { Pool } from 'pg';
-
 export interface Dict<T> {
   [key: string]: T;
 }
 
 export interface Migration {
   version: string;
-  up(client: Pool): Promise<any>;
-  down(client: Pool): Promise<any>;
+  up(sql: any): Promise<any>;
+  down(sql: any): Promise<any>;
   parent?: string[];
 }

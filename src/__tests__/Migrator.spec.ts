@@ -1,15 +1,13 @@
+import { Migration, Migrator } from '..';
+
+import { ConnectionConfig } from '../Connector';
 import { context } from './types';
-import {
-  Migration,
-  Migrator,
-} from '..';
-import { PoolConfig } from 'pg';
 
 if (!process.env.PGDATABASE) process.env.PGDATABASE = 'testcode';
 
 let tableName: string | undefined;
-let poolConfig: PoolConfig | undefined;
-const connect = () => new Migrator({ tableName, ...poolConfig });
+let config: ConnectionConfig | undefined;
+const connect = () => new Migrator({ tableName, ...config });
 
 afterEach(async () => {
   return await connect().dropTable();
@@ -82,32 +80,32 @@ describe('Migrator', () => {
       },
     });
 
-    context('when poolConfig is not present', {
+    context('when config is not present', {
       definitions() {
-        poolConfig = undefined;
+        config = undefined;
       },
       tests() {
         it('will set a default', () => {
           const migrator = subject();
-          expect(migrator.poolConfig).toEqual({});
+          expect(migrator.config).toEqual({});
         });
       },
       reset() {
-        poolConfig = undefined;
+        config = undefined;
       },
     });
 
-    context('when poolConfig is passed', {
+    context('when config is passed', {
       definitions() {
-        poolConfig = { min: 1 };
+        config = { max: 1 };
       },
       tests() {
         it('will use passed value', () => {
-          expect(subject().poolConfig).toEqual(poolConfig);
+          expect(subject().config).toEqual(config);
         });
       },
       reset() {
-        poolConfig = undefined;
+        config = undefined;
       },
     });
   });
@@ -260,7 +258,9 @@ describe('Migrator', () => {
         migrations = [
           {
             version: 'test-1',
-            up: () => { throw 'error'; },
+            up: () => {
+              throw 'error';
+            },
             down: jest.fn(),
           },
         ];
@@ -358,7 +358,9 @@ describe('Migrator', () => {
       definitions() {
         migration = {
           version: 'test-up-3',
-          up: () => { throw 'error'; },
+          up: () => {
+            throw 'error';
+          },
           down: jest.fn(),
         };
       },
@@ -424,7 +426,9 @@ describe('Migrator', () => {
         migration = {
           version: 'test-down-3',
           up: jest.fn(),
-          down: () => { throw 'error'; },
+          down: () => {
+            throw 'error';
+          },
         };
       },
       tests() {

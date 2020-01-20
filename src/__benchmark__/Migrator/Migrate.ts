@@ -1,26 +1,24 @@
+import { Migration, Migrator } from '../..';
+
 import { Benchmark } from '../Benchmark';
-import { Migrator, Migration, Connector } from '../..';
 
 export class Migrate extends Benchmark {
   lastIndex = 0;
   migrations: Migration[] = [];
   tableName = `benchmark-${this.id}`;
-  migrator = new Migrator(this.tableName, { min: 1, max: 5 });
+  migrator = new Migrator({ max: 5, tableName: this.tableName });
 
   get simulateWork() {
-    return new Promise((resolve) => {
-      setTimeout(
-        () => {
-          resolve();
-        },
-        ~~(Math.random() * 200),
-      );
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, ~~(Math.random() * 200));
     });
   }
 
   get migration(): Migration {
     return {
-      version: `example-${this.lastIndex += 1}`,
+      version: `example-${(this.lastIndex += 1)}`,
       up: () => this.simulateWork,
       down: () => this.simulateWork,
     };

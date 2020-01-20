@@ -1,23 +1,23 @@
+import { ConnectionConfig, Connector } from './Connector';
+
 import { Migration } from './types';
-import { PoolConfig } from 'pg';
-import { Connector } from './Connector';
 
 export class Migrator {
   public tableName: string = 'migrations';
-  public poolConfig: PoolConfig | undefined;
+  public config: ConnectionConfig | undefined;
 
-  constructor(poolConfig?: PoolConfig & { tableName: string }) {
-    if (poolConfig) {
-      if (poolConfig.tableName) {
-        this.tableName = poolConfig.tableName;
+  constructor(config?: ConnectionConfig & { tableName?: string }) {
+    if (config) {
+      if (config.tableName) {
+        this.tableName = config.tableName;
       }
-      delete poolConfig.tableName;
-      this.poolConfig = poolConfig;
+      delete config.tableName;
+      this.config = config;
     }
   }
 
   private connect() {
-    return new Connector(this.tableName, this.poolConfig);
+    return new Connector(this.tableName, this.config);
   }
 
   public async createDatabase() {
