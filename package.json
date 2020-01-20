@@ -1,6 +1,6 @@
 {
   "name": "@nextcode/postgres-migrator",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Postgres migration package with zero dependencies",
   "keywords": [
     "migrate",

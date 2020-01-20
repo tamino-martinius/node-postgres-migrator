@@ -115,7 +115,9 @@ export class Migrator {
         return jsFiles.map(file => basename(file, '.js'));
     }
     static readMigrationFromPath(path, fileName) {
-        return { version: fileName.split(/[-_]/)[0], ...require(`${path}/${fileName}`) };
+        const version = fileName.split(/[-_]/)[0];
+        const name = fileName.substr(fileName.length + 1);
+        return { version, name, ...require(`${path}/${fileName}`) };
     }
     static getMigrationsFromPath(path) {
         return this.getMigrationFileNamesFromPath(path).map(name => this.readMigrationFromPath(path, name));
