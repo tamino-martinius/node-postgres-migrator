@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Connector_1 = require("./Connector");
 const path_1 = require("path");
 const fs_1 = require("fs");
-const punycode_1 = require("punycode");
 class Migrator {
     constructor(config) {
         this.tableName = 'migrations';
@@ -122,8 +121,8 @@ class Migrator {
             const connector = this.connect();
             const status = {};
             for (const migration of migrations) {
-                const { name } = migration;
-                status[punycode_1.version] = { name, isApplied: false };
+                const { name, version } = migration;
+                status[version] = { name, isApplied: false };
             }
             try {
                 const versions = yield connector.getMigrationVersions();

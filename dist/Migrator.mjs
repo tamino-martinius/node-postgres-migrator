@@ -1,7 +1,6 @@
 import { Connector } from './Connector';
 import { basename } from 'path';
 import { readdirSync } from 'fs';
-import { version } from 'punycode';
 export class Migrator {
     constructor(config) {
         this.tableName = 'migrations';
@@ -94,7 +93,7 @@ export class Migrator {
         const connector = this.connect();
         const status = {};
         for (const migration of migrations) {
-            const { name } = migration;
+            const { name, version } = migration;
             status[version] = { name, isApplied: false };
         }
         try {
