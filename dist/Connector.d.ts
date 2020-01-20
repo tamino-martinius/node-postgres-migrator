@@ -1,25 +1,41 @@
-import { Pool, PoolConfig } from 'pg';
 import { Migration } from './types';
+export interface ConnectionConfig {
+    host?: string;
+    port?: number;
+    path?: string;
+    database?: string;
+    username?: string;
+    password?: string;
+    ssl?: boolean;
+    max?: number;
+    timeout?: number;
+    types?: any;
+    onnotice?: () => any;
+    onparameter?: () => any;
+    debug?: () => any;
+    transform?: {
+        column?: () => any;
+        value?: () => any;
+        row?: () => any;
+    };
+}
 export declare class Connector {
     tableName: string;
-    poolConfig: PoolConfig | undefined;
-    private cachedPool;
+    private cachedSql;
     private migrationPromises;
     private migrationStatus;
     private initStatus;
     private lastMigration;
-    constructor(tableName: string, poolConfig: PoolConfig | undefined);
-    readonly pool: Pool;
-    private readonly isTableNameValid;
+    private config;
+    constructor(tableName?: string, config?: ConnectionConfig);
+    get sql(): any;
+    private get isTableNameValid();
     private createIndex;
     createTable(): Promise<void>;
     private dropIndex;
     private getMigrationVersions;
     private insertMigrationVersion;
     private deleteMigrationVersion;
-    private beginTransaction;
-    private endTransaction;
-    private rollbackTransaction;
     private init;
     tableExists(): Promise<boolean>;
     createDatabase(): Promise<void>;
@@ -28,6 +44,6 @@ export declare class Connector {
     migrate(migrations: Migration[]): Promise<void>;
     up(migration: Migration): Promise<void>;
     down(migration: Migration): Promise<void>;
-    disconnect(pool?: Pool): Promise<void>;
+    disconnect(): Promise<void>;
 }
 export default Connector;

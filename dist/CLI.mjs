@@ -1,5 +1,5 @@
-import { resolve, basename } from 'path';
-import { readdirSync, existsSync, mkdirSync, writeFileSync, } from 'fs';
+import { basename, resolve } from 'path';
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
 import { Migrator } from './Migrator';
 export class CLI {
     constructor(logger = console.log) {
@@ -191,16 +191,19 @@ export class CLI {
         await this.getMigrator().dropTable();
     }
     get newVersion() {
-        return new Date().toISOString().substr(0, 19).replace(/[-T:]/g, '');
+        return new Date()
+            .toISOString()
+            .substr(0, 19)
+            .replace(/[-T:]/g, '');
     }
     get nodeVersion() {
         if (this.cachedNodeVersion)
             return this.cachedNodeVersion;
-        const version = Number(((process.version).match(/^v(\d+\.\d+)/) || ['', '0'])[1]);
-        return this.cachedNodeVersion = version;
+        const version = Number((process.version.match(/^v(\d+\.\d+)/) || ['', '0'])[1]);
+        return (this.cachedNodeVersion = version);
     }
     get es2015() {
-        return `const pg = require('pg');
+        return `const postgres = require('postgres');
 
 /**
  * Description of the Migration
@@ -209,20 +212,20 @@ module.exports = {
   parent: undefined,
   /**
    * Method to apply migration
-   * @param {pg.Pool} client
+   * @param {any} sql
    * @returns {Promise<void>}
    */
-  up(client) {
+  up(sql) {
 
     // Return Promise for Migration
 
   },
   /**
    * Method to rollback migration
-   * @param {pg.Pool} client
+   * @param {any} sql
    * @returns {Promise<void>}
    */
-  down(client) {
+  down(sql) {
 
     // Return Promise for Rollback
 
@@ -231,7 +234,7 @@ module.exports = {
 `;
     }
     get es2017() {
-        return `const pg = require('pg');
+        return `const postgres = require('postgres');
 
 /**
  * Description of the Migration
@@ -240,20 +243,20 @@ module.exports = {
   parent: undefined,
   /**
    * Method to apply migration
-   * @param {pg.Pool} client
+   * @param {any} sql
    * @returns {Promise<void>}
    */
-  async up(client) {
+  async up(sql) {
 
     // Code for Migration
 
   },
   /**
    * Method to rollback migration
-   * @param {pg.Pool} client
+   * @param {any} sql
    * @returns {Promise<void>}
    */
-  async down(client) {
+  async down(sql) {
 
     // Code for Rollback
 
@@ -262,9 +265,7 @@ module.exports = {
 `;
     }
     get ts() {
-        return `import { Pool } from 'pg';
-
-/*
+        return `/*
  * Description of the Migration
  */
 
@@ -272,14 +273,14 @@ module.exports = {
 export const parent: string[] | undefined = undefined;
 
 // Method to apply migration
-export const up = async (client: Pool) => {
+export const up = async (sql: any) => {
 
   // Code for Migration
 
 };
 
 // Method to rollback migration
-export const down = async (client: Pool) => {
+export const down = async (sql: any) => {
 
   // Code for Rollback
 

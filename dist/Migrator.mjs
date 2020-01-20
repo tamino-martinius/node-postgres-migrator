@@ -1,17 +1,17 @@
 import { Connector } from './Connector';
 export class Migrator {
-    constructor(poolConfig) {
+    constructor(config) {
         this.tableName = 'migrations';
-        if (poolConfig) {
-            if (poolConfig.tableName) {
-                this.tableName = poolConfig.tableName;
+        if (config) {
+            if (config.tableName) {
+                this.tableName = config.tableName;
             }
-            delete poolConfig.tableName;
-            this.poolConfig = poolConfig;
+            delete config.tableName;
+            this.config = config;
         }
     }
     connect() {
-        return new Connector(this.tableName, this.poolConfig);
+        return new Connector(this.tableName, this.config);
     }
     async createDatabase() {
         const connector = this.connect();

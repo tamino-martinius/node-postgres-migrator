@@ -1,10 +1,10 @@
+import { ConnectionConfig } from './Connector';
 import { Migration } from './types';
-import { PoolConfig } from 'pg';
 export declare class Migrator {
     tableName: string;
-    poolConfig: PoolConfig | undefined;
-    constructor(poolConfig?: PoolConfig & {
-        tableName: string;
+    config: ConnectionConfig | undefined;
+    constructor(config?: ConnectionConfig & {
+        tableName?: string;
     });
     private connect;
     createDatabase(): Promise<void>;

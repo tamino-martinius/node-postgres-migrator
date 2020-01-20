@@ -1,27 +1,28 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Connector_1 = require("./Connector");
 class Migrator {
-    constructor(poolConfig) {
+    constructor(config) {
         this.tableName = 'migrations';
-        if (poolConfig) {
-            if (poolConfig.tableName) {
-                this.tableName = poolConfig.tableName;
+        if (config) {
+            if (config.tableName) {
+                this.tableName = config.tableName;
             }
-            delete poolConfig.tableName;
-            this.poolConfig = poolConfig;
+            delete config.tableName;
+            this.config = config;
         }
     }
     connect() {
-        return new Connector_1.Connector(this.tableName, this.poolConfig);
+        return new Connector_1.Connector(this.tableName, this.config);
     }
     createDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
