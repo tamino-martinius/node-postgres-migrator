@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2015",
-    "module": "CommonJS",
+    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "declaration": true,
     "rootDir": "src",
     "outDir": "dist",
-    "noLib": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
     "noImplicitAny": true,
@@ -18,14 +17,6 @@
     "noUnusedParameters": true,
     "experimentalDecorators": true
   },
-  "files": [
-    "node_modules/typescript/lib/lib.es2015.d.ts",
-    "src/index.ts"
-  ],
-  "include": [
-    "*.ts",
-    "**/*.ts"
-  ],
   "exclude": [
     "node_modules",
     "*/__benchmark__",
