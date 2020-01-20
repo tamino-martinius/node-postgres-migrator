@@ -122,7 +122,7 @@ export class Connector {
       WHERE "table_schema" = current_schema()
         AND "table_name" = ${this.tableName}
     `;
-    return result.rowCount > 0;
+    return result.length > 0;
   }
 
   public async createDatabase() {
