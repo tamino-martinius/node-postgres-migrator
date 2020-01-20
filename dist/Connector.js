@@ -95,6 +95,7 @@ class Connector {
     }
     getMigrationVersions() {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.init();
             const result = yield this.sql.unsafe(`
       SELECT version FROM "${this.tableName}"
     `);

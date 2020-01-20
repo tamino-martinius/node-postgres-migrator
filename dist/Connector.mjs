@@ -71,6 +71,7 @@ export class Connector {
         }
     }
     async getMigrationVersions() {
+        await this.init();
         const result = await this.sql.unsafe(`
       SELECT version FROM "${this.tableName}"
     `);
