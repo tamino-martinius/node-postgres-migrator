@@ -103,7 +103,7 @@ export class Migrator {
     const connector = this.connect();
     const status: Dict<{ name?: string; isApplied: boolean }> = {};
     for (const migration of migrations) {
-      const { name } = migration;
+      const { name, version } = migration;
       status[version] = { name, isApplied: false };
     }
     try {
