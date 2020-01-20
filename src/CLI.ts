@@ -1,8 +1,8 @@
-import { basename, resolve } from 'path';
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 
 import { Migration } from './types';
 import { Migrator } from './Migrator';
+import { resolve } from 'path';
 
 export type Logger = (...params: any[]) => void;
 
