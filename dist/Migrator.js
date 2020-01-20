@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Connector_1 = require("./Connector");
 const path_1 = require("path");
 const fs_1 = require("fs");
+const punycode_1 = require("punycode");
 class Migrator {
     constructor(config) {
         this.tableName = 'migrations';
@@ -114,6 +115,27 @@ class Migrator {
             finally {
                 yield connector.disconnect();
             }
+        });
+    }
+    getStatusOfMigrations(migrations) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const connector = this.connect();
+            const status = {};
+            for (const migration of migrations) {
+                const { name } = migration;
+                status[punycode_1.version] = { name, isApplied: false };
+            }
+            try {
+                const versions = yield connector.getMigrationVersions();
+                for (const version of versions) {
+                    status[version] = status[version] || { isApplied: true };
+                    status[version].isApplied = status[version].isApplied || true;
+                }
+            }
+            finally {
+                yield connector.disconnect();
+            }
+            return status;
         });
     }
     static getMigrationFileNamesFromPath(path) {

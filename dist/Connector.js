@@ -56,14 +56,6 @@ class Connector {
     `);
         });
     }
-    getMigrationVersions() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.sql.unsafe(`
-      SELECT version FROM "${this.tableName}"
-    `);
-            return result.map((row) => row.version);
-        });
-    }
     insertMigrationVersion(sql, version) {
         return __awaiter(this, void 0, void 0, function* () {
             yield sql.unsafe(`
@@ -99,6 +91,14 @@ class Connector {
                     resolve();
                 })));
             }
+        });
+    }
+    getMigrationVersions() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.sql.unsafe(`
+      SELECT version FROM "${this.tableName}"
+    `);
+            return result.map((row) => row.version);
         });
     }
     tableExists() {

@@ -1,6 +1,7 @@
 import { Connector } from './Connector';
 import { basename } from 'path';
 import { readdirSync } from 'fs';
+import { version } from 'punycode';
 export class Migrator {
     constructor(config) {
         this.tableName = 'migrations';
@@ -88,6 +89,25 @@ export class Migrator {
         finally {
             await connector.disconnect();
         }
+    }
+    async getStatusOfMigrations(migrations) {
+        const connector = this.connect();
+        const status = {};
+        for (const migration of migrations) {
+            const { name } = migration;
+            status[version] = { name, isApplied: false };
+        }
+        try {
+            const versions = await connector.getMigrationVersions();
+            for (const version of versions) {
+                status[version] = status[version] || { isApplied: true };
+                status[version].isApplied = status[version].isApplied || true;
+            }
+        }
+        finally {
+            await connector.disconnect();
+        }
+        return status;
     }
     static getMigrationFileNamesFromPath(path) {
         const files = readdirSync(path);

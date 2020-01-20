@@ -33,10 +33,10 @@ export declare class Connector {
     private createIndex;
     createTable(): Promise<void>;
     private dropIndex;
-    private getMigrationVersions;
     private insertMigrationVersion;
     private deleteMigrationVersion;
     private init;
+    getMigrationVersions(): Promise<string[]>;
     tableExists(): Promise<boolean>;
     createDatabase(): Promise<void>;
     dropDatabase(): Promise<void>;

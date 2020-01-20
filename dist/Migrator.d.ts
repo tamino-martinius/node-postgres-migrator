@@ -1,5 +1,5 @@
 import { ConnectionConfig } from './Connector';
-import { Migration } from './types';
+import { Dict, Migration } from './types';
 export declare class Migrator {
     tableName: string;
     config: ConnectionConfig | undefined;
@@ -15,6 +15,10 @@ export declare class Migrator {
     migrate(migrations: Migration[]): Promise<void>;
     up(migration: Migration): Promise<void>;
     down(migration: Migration): Promise<void>;
+    getStatusOfMigrations(migrations: Migration[]): Promise<Dict<{
+        name?: string;
+        isApplied: boolean;
+    }>>;
     static getMigrationFileNamesFromPath(path: string): string[];
     static readMigrationFromPath(path: string, fileName: string): any;
     static getMigrationsFromPath(path: string): Migration[];

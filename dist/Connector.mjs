@@ -39,12 +39,6 @@ export class Connector {
       DROP INDEX IF EXISTS "${this.tableName}__version"
     `);
     }
-    async getMigrationVersions() {
-        const result = await this.sql.unsafe(`
-      SELECT version FROM "${this.tableName}"
-    `);
-        return result.map((row) => row.version);
-    }
     async insertMigrationVersion(sql, version) {
         await sql.unsafe(`
       INSERT INTO
@@ -75,6 +69,12 @@ export class Connector {
                 resolve();
             }));
         }
+    }
+    async getMigrationVersions() {
+        const result = await this.sql.unsafe(`
+      SELECT version FROM "${this.tableName}"
+    `);
+        return result.map((row) => row.version);
     }
     async tableExists() {
         const result = await this.sql `
