@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = require("path");
 const fs_1 = require("fs");
 const Migrator_1 = require("./Migrator");
+const path_1 = require("path");
 class CLI {
     constructor(logger = console.log) {
         this.logger = logger;
@@ -120,17 +120,16 @@ class CLI {
     }
     get migrationNames() {
         const path = this.migrationsPath;
-        const files = fs_1.readdirSync(path);
-        this.logger(this.migrationsPath);
-        const jsFiles = files.filter(file => file.endsWith('.js'));
-        return jsFiles.map(file => path_1.basename(file, '.js'));
+        this.logger(path);
+        return Migrator_1.Migrator.getMigrationFileNamesFromPath(path);
     }
-    readMigration(name) {
+    readMigration(fileName) {
         const path = this.migrationsPath;
-        return Object.assign({ version: name.split(/[-_]/)[0] }, require(`${path}/${name}`));
+        return Migrator_1.Migrator.readMigrationFromPath(path, fileName);
     }
     get migrations() {
-        return this.migrationNames.map(name => this.readMigration(name));
+        const path = this.migrationsPath;
+        return Migrator_1.Migrator.getMigrationsFromPath(path);
     }
     get migration() {
         const path = this.migrationsPath;

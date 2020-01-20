@@ -15,5 +15,8 @@ export declare class Migrator {
     migrate(migrations: Migration[]): Promise<void>;
     up(migration: Migration): Promise<void>;
     down(migration: Migration): Promise<void>;
+    static getMigrationFileNamesFromPath(path: string): string[];
+    static readMigrationFromPath(path: string, fileName: string): any;
+    static getMigrationsFromPath(path: string): Migration[];
 }
 export default Migrator;

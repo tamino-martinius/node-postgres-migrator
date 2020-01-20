@@ -10,6 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Connector_1 = require("./Connector");
+const path_1 = require("path");
+const fs_1 = require("fs");
 class Migrator {
     constructor(config) {
         this.tableName = 'migrations';
@@ -113,6 +115,17 @@ class Migrator {
                 yield connector.disconnect();
             }
         });
+    }
+    static getMigrationFileNamesFromPath(path) {
+        const files = fs_1.readdirSync(path);
+        const jsFiles = files.filter(file => file.endsWith('.js'));
+        return jsFiles.map(file => path_1.basename(file, '.js'));
+    }
+    static readMigrationFromPath(path, fileName) {
+        return Object.assign({ version: fileName.split(/[-_]/)[0] }, require(`${path}/${fileName}`));
+    }
+    static getMigrationsFromPath(path) {
+        return this.getMigrationFileNamesFromPath(path).map(name => this.readMigrationFromPath(path, name));
     }
 }
 exports.Migrator = Migrator;

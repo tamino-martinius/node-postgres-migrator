@@ -1,6 +1,6 @@
-import { basename, resolve } from 'path';
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { Migrator } from './Migrator';
+import { resolve } from 'path';
 export class CLI {
     constructor(logger = console.log) {
         this.logger = logger;
@@ -109,17 +109,16 @@ export class CLI {
     }
     get migrationNames() {
         const path = this.migrationsPath;
-        const files = readdirSync(path);
-        this.logger(this.migrationsPath);
-        const jsFiles = files.filter(file => file.endsWith('.js'));
-        return jsFiles.map(file => basename(file, '.js'));
+        this.logger(path);
+        return Migrator.getMigrationFileNamesFromPath(path);
     }
-    readMigration(name) {
+    readMigration(fileName) {
         const path = this.migrationsPath;
-        return { version: name.split(/[-_]/)[0], ...require(`${path}/${name}`) };
+        return Migrator.readMigrationFromPath(path, fileName);
     }
     get migrations() {
-        return this.migrationNames.map(name => this.readMigration(name));
+        const path = this.migrationsPath;
+        return Migrator.getMigrationsFromPath(path);
     }
     get migration() {
         const path = this.migrationsPath;
