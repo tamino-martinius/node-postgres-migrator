@@ -3,7 +3,6 @@ import { Dict, Migration } from './types';
 
 import { basename } from 'path';
 import { readdirSync } from 'fs';
-import { version } from 'punycode';
 
 export class Migrator {
   public tableName: string = 'migrations';
