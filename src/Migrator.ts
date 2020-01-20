@@ -125,7 +125,9 @@ export class Migrator {
   }
 
   public static readMigrationFromPath(path: string, fileName: string) {
-    return { version: fileName.split(/[-_]/)[0], ...require(`${path}/${fileName}`) };
+    const version = fileName.split(/[-_]/)[0];
+    const name = fileName.substr(fileName.length + 1);
+    return { version, name, ...require(`${path}/${fileName}`) };
   }
 
   public static getMigrationsFromPath(path: string): Migration[] {
