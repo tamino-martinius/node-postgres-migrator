@@ -7,7 +7,7 @@ Migrations for [Postgres](https://www.npmjs.com/package/pg).
 
 ## Whats different in this package compared to most others?
 
-- This package has 0 dependencies  - just postgres (pg) itself as peer dependency
+- This package has 0 dependencies - just [postgres](https://www.npmjs.com/package/postgres) itself as peer dependency
 - Support of parallel migrations when the dependent migrations are defined
 - Ships with TypeScript types, commonJs (.js) and module exports (.mjs)
 - Can be called by CLI or by programmatic access
@@ -99,7 +99,7 @@ named there to be finished. But once all dependent migrations are done the migra
 will run instantly parallel to other migrations where all dependent migrations are
 applied. The migration will be applied instantly when `parent` is an empty array.
 
-~~~ts
+```ts
 const migration = [
   version: '201812312359',
   async up(client) {
@@ -109,47 +109,47 @@ const migration = [
     // ...
   },
 ]
-~~~
+```
 
 ### Create Migrator
 
 The Migrator creates a table
 
-~~~ts
+```ts
 // constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
 const migrator = new Migrator();
 
 // migrate(migrations: Migration[]);
 migrator.migrate([
   migration1,
-  migration2,
+  migration2
   //...
 ]);
-~~~
+```
 
 ### Migrate
 
 Pass an array of migrations and the migrator will skip all migrations which were already applied.
 Pending migrations will be applied in parallel - if possible - depending on the dependent migrations.
 
-~~~ts
+```ts
 // constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
 const migrator = new Migrator();
 
 // migrate(migrations: Migration[]);
 migrator.migrate([
   migration1,
-  migration2,
+  migration2
   //...
 ]);
-~~~
+```
 
 ### Up / Down
 
 Pass an single migration and the will apply or undo the migration depending on
 the current status of the migration.
 
-~~~ts
+```ts
 // constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
 const migrator = new Migrator();
 
@@ -157,7 +157,7 @@ const migrator = new Migrator();
 // down(migration: Migration);
 migrator.up(migration);
 migrator.down(migration);
-~~~
+```
 
 ### Create / Drop Database
 
@@ -165,7 +165,7 @@ The migrator also supports to create or drop a new database. The command will ch
 if the database is already existing and skip creation if database already exists.
 On the other hand the drop of the database will be skipped when database is not existing.
 
-~~~ts
+```ts
 // constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
 const migrator = new Migrator();
 
@@ -173,22 +173,23 @@ const migrator = new Migrator();
 // dropDatabase();
 migrator.createDatabase();
 migrator.dropDatabase();
-~~~
+```
 
 ### Drop Table
 
 Once a migration is applied the migrator will create a table to save the applied migrations.
 This table can be dropped with the dropTable command.
-~~~ts
+
+```ts
 // constructor(tableName?: string = 'migrations', poolConfig?: PoolConfig)
 const migrator = new Migrator();
 
 // dropTable();
 migrator.dropTable();
-~~~
+```
 
 ## Changelog
 
 See [history](HISTORY.md) for more details.
 
-* `1.0.0` **2018-xx-xx** Initial release
+- `1.0.0` **2018-xx-xx** Initial release
