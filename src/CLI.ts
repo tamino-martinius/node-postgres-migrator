@@ -128,19 +128,18 @@ export class CLI {
 
   private get migrationNames() {
     const path = this.migrationsPath;
-    const files = readdirSync(path);
-    this.logger(this.migrationsPath);
-    const jsFiles = files.filter(file => file.endsWith('.js'));
-    return jsFiles.map(file => basename(file, '.js'));
+    this.logger(path);
+    return Migrator.getMigrationFileNamesFromPath(path);
   }
 
-  private readMigration(name: string) {
+  private readMigration(fileName: string) {
     const path = this.migrationsPath;
-    return { version: name.split(/[-_]/)[0], ...require(`${path}/${name}`) };
+    return Migrator.readMigrationFromPath(path, fileName);
   }
 
   private get migrations(): Migration[] {
-    return this.migrationNames.map(name => this.readMigration(name));
+    const path = this.migrationsPath;
+    return Migrator.getMigrationsFromPath(path);
   }
 
   private get migration(): Migration {

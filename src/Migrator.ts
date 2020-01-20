@@ -1,6 +1,8 @@
 import { ConnectionConfig, Connector } from './Connector';
 
 import { Migration } from './types';
+import { basename } from 'path';
+import { readdirSync } from 'fs';
 
 export class Migrator {
   public tableName: string = 'migrations';
@@ -92,6 +94,22 @@ export class Migrator {
     } finally {
       await connector.disconnect();
     }
+  }
+
+  public static getMigrationFileNamesFromPath(path: string) {
+    const files = readdirSync(path);
+    const jsFiles = files.filter(file => file.endsWith('.js'));
+    return jsFiles.map(file => basename(file, '.js'));
+  }
+
+  public static readMigrationFromPath(path: string, fileName: string) {
+    return { version: fileName.split(/[-_]/)[0], ...require(`${path}/${fileName}`) };
+  }
+
+  public static getMigrationsFromPath(path: string): Migration[] {
+    return this.getMigrationFileNamesFromPath(path).map(name =>
+      this.readMigrationFromPath(path, name),
+    );
   }
 }
 
