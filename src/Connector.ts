@@ -29,9 +29,11 @@ export class Connector {
   private migrationStatus: Dict<boolean> = {};
   private initStatus: boolean | Promise<void> = false;
   private lastMigration: string | undefined;
+  private config: ConnectionConfig;
 
-  constructor(public tableName: string = 'migrations', public config?: ConnectionConfig) {
+  constructor(public tableName: string = 'migrations', config?: ConnectionConfig) {
     if (!this.isTableNameValid) throw `Invalid table name «${this.tableName}»`;
+    this.config = config || {};
   }
 
   get sql(): any {
@@ -84,7 +86,7 @@ export class Connector {
   }
 
   private async deleteMigrationVersion(sql: any, version: string): Promise<void> {
-    await this.sql`
+    await sql`
       DELETE FROM "${this.tableName}"
       WHERE version = ${version}
     `;
@@ -117,7 +119,7 @@ export class Connector {
   }
 
   public async createDatabase() {
-    const database = this.config?.database || process.env.PGDATABASE;
+    const database = this.config.database || process.env.PGDATABASE;
     const sql = postgres({
       ...this.config,
       database: 'postgres',
@@ -137,7 +139,7 @@ export class Connector {
   }
 
   public async dropDatabase() {
-    const database = this.config?.database || process.env.PGDATABASE;
+    const database = this.config.database || process.env.PGDATABASE;
     const sql = postgres({
       ...this.config,
       database: 'postgres',
@@ -213,7 +215,7 @@ export class Connector {
       return process;
     });
     this.lastMigration = migration.version;
-    return (this.migrationPromises[migration.version] = new Promise(async (resolve, reject) => {
+    return (this.migrationPromises[migration.version] = new Promise(async (resolve, _) => {
       await this.init();
       await Promise.all(parentPromises);
       await this.sql.begin(async (sql: any) => {

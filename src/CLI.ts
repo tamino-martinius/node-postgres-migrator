@@ -297,9 +297,7 @@ module.exports = {
   }
 
   get ts() {
-    return `import * as postgres from 'postgres';
-
-/*
+    return `/*
  * Description of the Migration
  */
 
