@@ -1,8 +1,9 @@
 import { ConnectionConfig, Connector } from './Connector';
+import { Dict, Migration } from './types';
 
-import { Migration } from './types';
 import { basename } from 'path';
 import { readdirSync } from 'fs';
+import { version } from 'punycode';
 
 export class Migrator {
   public tableName: string = 'migrations';
@@ -94,6 +95,27 @@ export class Migrator {
     } finally {
       await connector.disconnect();
     }
+  }
+
+  public async getStatusOfMigrations(
+    migrations: Migration[],
+  ): Promise<Dict<{ name?: string; isApplied: boolean }>> {
+    const connector = this.connect();
+    const status: Dict<{ name?: string; isApplied: boolean }> = {};
+    for (const migration of migrations) {
+      const { name } = migration;
+      status[version] = { name, isApplied: false };
+    }
+    try {
+      const versions = await connector.getMigrationVersions();
+      for (const version of versions) {
+        status[version] = status[version] || { isApplied: true };
+        status[version].isApplied = status[version].isApplied || true;
+      }
+    } finally {
+      await connector.disconnect();
+    }
+    return status;
   }
 
   public static getMigrationFileNamesFromPath(path: string) {

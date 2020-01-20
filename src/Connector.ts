@@ -70,13 +70,6 @@ export class Connector {
     `);
   }
 
-  private async getMigrationVersions(): Promise<string[]> {
-    const result = await this.sql.unsafe(`
-      SELECT version FROM "${this.tableName}"
-    `);
-    return result.map((row: any) => row.version);
-  }
-
   private async insertMigrationVersion(sql: any, version: string): Promise<void> {
     await sql.unsafe(
       `
@@ -113,6 +106,13 @@ export class Connector {
         resolve();
       }));
     }
+  }
+
+  public async getMigrationVersions(): Promise<string[]> {
+    const result = await this.sql.unsafe(`
+      SELECT version FROM "${this.tableName}"
+    `);
+    return result.map((row: any) => row.version);
   }
 
   public async tableExists(): Promise<boolean> {
