@@ -170,7 +170,8 @@ export class Connector {
     await this.sql.unsafe(`DROP TABLE IF EXISTS ${this.tableName}`);
   }
 
-  public async migrate(migrations: Migration[]): Promise<void> {
+  public async migrate(originalMigrations: Migration[]): Promise<void> {
+    const migrations = [...originalMigrations];
     await this.init();
     const promises: Promise<void>[] = [];
     let migrationCount = migrations.length;
