@@ -156,8 +156,9 @@ class Connector {
             yield this.sql.unsafe(`DROP TABLE IF EXISTS ${this.tableName}`);
         });
     }
-    migrate(migrations) {
+    migrate(originalMigrations) {
         return __awaiter(this, void 0, void 0, function* () {
+            const migrations = [...originalMigrations];
             yield this.init();
             const promises = [];
             let migrationCount = migrations.length;

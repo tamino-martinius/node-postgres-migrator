@@ -41,7 +41,7 @@ export declare class Connector {
     createDatabase(): Promise<void>;
     dropDatabase(): Promise<void>;
     dropTable(): Promise<void>;
-    migrate(migrations: Migration[]): Promise<void>;
+    migrate(originalMigrations: Migration[]): Promise<void>;
     up(migration: Migration): Promise<void>;
     down(migration: Migration): Promise<void>;
     disconnect(): Promise<void>;
